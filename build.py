@@ -1,8 +1,8 @@
 import requests
 import json
 
-# 1. Твоя ссылка на CSV из Google (Файл -> Поделиться -> Опубликовать в интернете -> CSV)
-SHEET_CSV_URL = "ССЫЛКА_НА_CSV"
+# 1. Ссылка на CSV из Google Sheets (Файл -> Поделиться -> Опубликовать в интернете -> Значения, разделенные запятыми)
+SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVezxfe40Q-78IQvERF0u42mMOqAMNAmJ-aHJN4Zx9_S99ud7GYZMaENCQBb_hvujpYjb3sT8aITCM/pub?output=csv"
 
 def build():
     # Качаем данные
