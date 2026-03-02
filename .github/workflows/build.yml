@@ -1,0 +1,23 @@
+name: Build and Deploy
+on:
+  repository_dispatch:
+    types: [webhook_update] # Слушаем сигнал из таблицы
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+      - name: Install dependencies
+        run: pip install requests
+      - name: Run build script
+        run: python build.py
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@4.1.5
+        with:
+          branch: gh-pages
+          folder: . # Папка, где лежит готовый index.html
