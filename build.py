@@ -1,20 +1,16 @@
 import requests
 import json
+import csv
 
 # 1. Ссылка на CSV из Google Sheets (Файл -> Поделиться -> Опубликовать в интернете -> Значения, разделенные запятыми)
 SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVezxfe40Q-78IQvERF0u42mMOqAMNAmJ-aHJN4Zx9_S99ud7GYZMaENCQBb_hvujpYjb3sT8aITCM/pub?output=csv"
 
 def build():
-    # Качаем данные
-    r = requests.get(SHEET_CSV_URL)
-    r.encoding = 'utf-8'
-    lines = r.text.splitlines()
-    
-    import csv
-    reader = csv.DictReader(lines)
+    response = requests.get(SHEET_CSV_URL)
+    response.encoding = 'utf-8'
+    reader = csv.DictReader(response.text.splitlines())
     items = list(reader)
 
-    # Генерируем HTML карточек (SSR)
     cards_html = ""
     for idx, item in enumerate(items):
         cards_html += f'''
@@ -26,7 +22,6 @@ def build():
             </div>
         </div>'''
 
-    # Читаем шаблон и заменяем метки
     with open('template.html', 'r', encoding='utf-8') as f:
         template = f.read()
 
@@ -35,7 +30,6 @@ def build():
 
     with open('index.html', 'w', encoding='utf-8') as f:
         f.write(final_html)
-    
-    print("Сайт успешно собран в index.html!")
 
-build()
+if __name__ == "__main__":
+    build()
