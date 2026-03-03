@@ -37,7 +37,7 @@
             font-weight: 600;
         }
 
-        .category-title { padding: 20px 15px 10px; margin: 0; font-size: 22px; }
+        .category-title { padding: 20px 15px 10px 0; margin: 0; font-size: 22px; }
         
         .container { padding: 12px; max-width: 1000px; margin: 0 auto; }
         .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 30px; }
@@ -51,10 +51,10 @@
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: flex-end; backdrop-filter: blur(4px); }
         .modal-content { background: var(--white); width: 100%; border-radius: 20px 20px 0 0; max-height: 92vh; overflow-y: auto; position: relative; animation: slideUp 0.3s cubic-bezier(0.25, 0.1, 0.25, 1); box-sizing: border-box; padding: 20px; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        .modal-body { padding: 0 20px 40px 20px; position: relative; }
+
         .modal-body img { width: 100%; border-radius: 16px; margin: 20px 0; }
-        .weight-badge { color: #888; font-size: 14px; margin-bottom: 10px; }
-        .close-btn { position: absolute; top: 15px; right: 15px; background: #f0f0f0; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; }
+        .weight-badge { color: #888; font-size: 14px; margin-bottom: 5px 0 10px; }
+        .close-btn { position: absolute; top: 12px; right: 12px; background: #fff; width: 62px; height: 62px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 24px; box-shadow: 2px 0px 10px rgba(0, 0, 0, 0.1); z-index: 10; }
     </style>
 </head>
 <body>
@@ -82,8 +82,8 @@
             const item = menuItems[index];
             document.getElementById('modal-body').innerHTML = `
                 <img src="${item.img}" style="width:100%; border-radius:12px; margin-bottom:15px;">
-                <div class="weight-badge">${item.weight || ''}</div>
                 <h2 style="margin:0;">${item.name}</h2>
+                <div class="weight-badge">${item.weight || ''}</div>
                 <p style="color:var(--primary); font-size:20px; font-weight:bold;">${item.price} ₽</p>
                 <p style="color:#666; line-height:1.5;"><b>Состав:</b> ${item.desc}</p>
             `;
