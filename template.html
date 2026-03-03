@@ -6,36 +6,73 @@
     <title>Меню Кафе</title>
     <style>
         :root { --primary: #ff5e00; --bg: #f8f8f8; --white: #ffffff; --radius: 18px; }
+        html { scroll-behavior: smooth; } /* Плавный скролл */
         body { font-family: -apple-system, system-ui, sans-serif; margin: 0; background: var(--bg); color: #333; }
-        header { background: var(--white); padding: 18px; text-align: center; font-weight: 800; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; }
+        
+        header { background: var(--white); padding: 15px; text-align: center; font-weight: 800; border-bottom: 1px solid #eee; }
+
+        /* Закрепленное меню категорий */
+        .nav-scroller {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--white);
+            display: flex;
+            overflow-x: auto;
+            padding: 10px;
+            gap: 8px;
+            border-bottom: 1px solid #eee;
+            scrollbar-width: none; /* Скрыть скроллбар в Firefox */
+        }
+        .nav-scroller::-webkit-scrollbar { display: none; } /* Скрыть скроллбар в Chrome */
+
+        .nav-item {
+            white-space: nowrap;
+            padding: 8px 16px;
+            background: #f0f0f0;
+            border-radius: 20px;
+            text-decoration: none;
+            color: #333;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .category-title { padding: 20px 15px 10px; margin: 0; font-size: 22px; }
+        
         .container { padding: 12px; max-width: 1000px; margin: 0 auto; }
-        .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 30px; }
         @media (min-width: 768px) { .menu-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; } }
         .product-card { background: var(--white); border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid #f0f0f0; }
         .product-img { width: 100%; aspect-ratio: 1/1; object-fit: cover; display: block; background: #f0f0f0; }
         .product-info { padding: 12px; flex-grow: 1; }
-        .product-title { font-size: 14px; font-weight: 600; margin-bottom: 6px; line-height: 1.3; }
-        .product-price { font-weight: 800; color: var(--primary); font-size: 16px; }
+        .product-title { font-size: 14px; font-weight: 600; margin-bottom: 6px; height: 36px; overflow: hidden; }
+        .product-price { font-weight: 800; color: var(--primary); }
 
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: flex-end; backdrop-filter: blur(4px); }
-        .modal-content { background: var(--white); width: 100%; border-radius: 20px 20px 0 0; max-height: 90vh; overflow-y: auto; position: relative; animation: slideUp 0.3s cubic-bezier(0.25, 0.1, 0.25, 1); box-sizing: border-box; padding: 20px; }
+        .modal-content { background: var(--white); width: 100%; border-radius: 20px 20px 0 0; max-height: 92vh; overflow-y: auto; position: relative; animation: slideUp 0.3s cubic-bezier(0.25, 0.1, 0.25, 1); box-sizing: border-box; padding: 20px; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        .modal-body { padding: 0 20px 40px 20px; }
+        .modal-body { padding: 0 20px 40px 20px; position: relative; }
         .modal-body img { width: 100%; border-radius: 16px; margin: 20px 0; }
+        .weight-badge { color: #888; font-size: 14px; margin-bottom: 10px; }
+        .close-btn { position: absolute; top: 15px; right: 15px; background: #f0f0f0; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; }
     </style>
 </head>
 <body>
     <header>🍕 Наше Меню</header>
+    
+    <nav class="nav-scroller">
+        {nav_items}
+    </nav>
+
     <div class="container">
-        <div class="menu-grid" id="menu-container">
-            {items_html}
-        </div>
+        {sections_html}
     </div>
 
     <div id="modal" class="modal-overlay" onclick="closeModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
-            <div id="modal-body"></div>
-            <button onclick="closeModal()" style="width:100%; padding:15px; margin-top:20px; border-radius:12px; border:none; background:#eee;">Закрыть</button>
+            <div class="close-btn" onclick="closeModal()">×</div>
+            <div id="modal-body" class="modal-body"></div>
+            <button onclick="closeModal()" style="width:100%; padding:15px; margin-top:20px; border-radius:12px; border:none; background:#eee; font-size: 1em; color: #333;">Закрыть</button>
         </div>
     </div>
 
@@ -45,6 +82,7 @@
             const item = menuItems[index];
             document.getElementById('modal-body').innerHTML = `
                 <img src="${item.img}" style="width:100%; border-radius:12px; margin-bottom:15px;">
+                <div class="weight-badge">${item.weight || ''}</div>
                 <h2 style="margin:0;">${item.name}</h2>
                 <p style="color:var(--primary); font-size:20px; font-weight:bold;">${item.price} ₽</p>
                 <p style="color:#666; line-height:1.5;"><b>Состав:</b> ${item.desc}</p>
