@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Модный Lounge Bar - Меню</title>
+    <style>
+        :root { 
+            --primary: #d66a40; /* Мягкий терракотовый */
+            --accent: #e0dacf; 
+            /*--accent: #d9d3c7;*/
+            --bg: #faf7f2;
+            --white: #ffffff;
+            --text: #4a3f35;
+            --nav-bg: #eee8de;
+            --border: #ebe4d8;
+            --radius: 18px; 
+        }
+        html { scroll-behavior: smooth; }
+        body { font-family: -apple-system, system-ui, sans-serif; margin: 0; background: var(--bg); color: var(--text); }
+        
+        header { 
+            background: var(--bg); 
+            padding: 15px;
+            padding-bottom: 5px;
+            text-align: center; 
+            font-weight: 800; 
+            /*border-bottom: 1px solid var(--border); */
+            font-size: 18px;
+        }
+        .header-logo {
+            width: 130px;
+        }
+
+        .nav-scroller {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--bg);
+            display: flex;
+            justify-content: center;
+            overflow-x: auto;
+            padding: 12px 10px;
+            gap: 10px;
+            scrollbar-width: none;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .nav-scroller::-webkit-scrollbar { display: none; }
+
+        .nav-item {
+            white-space: nowrap;
+            padding: 8px 18px;
+            background: var(--nav-bg);
+            border-radius: 20px;
+            text-decoration: none;
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .nav-item:active { opacity: 0.7; }
+        
+        .nav-item.active {
+            /*background: var(--primary);*/
+            /*color: var(--white);*/
+            background: var(--accent);
+        }
+
+        .category-title { padding: 20px 15px 10px 0; margin: 0; font-size: 22px; color: var(--text); scroll-margin-top: 50px;}
+        
+        .container { padding: 12px; max-width: 1000px; margin: 0 auto; }
+        .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 30px; }
+        @media (min-width: 768px) { .menu-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; } }
+        
+        .product-card { 
+            background: var(--white); 
+            border-radius: var(--radius); 
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column; 
+            box-shadow: 0 6px 16px rgba(74, 63, 53, 0.06);
+        }
+        .product-img { width: 100%; object-fit: cover; display: block; aspect-ratio: 4/3; }
+        .product-info { padding: 12px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .product-title { font-size: 14px; font-weight: 600; margin-bottom: 6px; height: 36px; overflow: hidden; line-height: 1.2;}
+        .product-price { font-weight: 800; color: var(--primary); font-size: 16px;}
+
+        /* Модальное окно */
+        .modal-overlay { 
+            display: none; 
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            background: rgba(50, 42, 36, 0.65); 
+            z-index: 1000; 
+            justify-content: center; 
+            align-items: flex-end; 
+            backdrop-filter: blur(5px); 
+            -webkit-backdrop-filter: blur(5px);
+        }
+        .modal-content { 
+            background: var(--white); 
+            width: 100%; 
+            max-width: 600px;
+            border-radius: 24px 24px 0 0; 
+            max-height: 92vh; 
+            overflow-y: auto; 
+            position: relative; 
+            animation: slideUp 0.35s cubic-bezier(0.2, 0.8, 0.2, 1); 
+            box-sizing: border-box; 
+            padding: 24px; 
+            margin: 0 auto;
+        }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+        .modal-body img { width: 100%; border-radius: 16px; margin-bottom: 15px;}
+        .weight-badge { color: #8c7f70; font-size: 14px; margin: 5px 0 12px;}
+        
+        .close-btn { 
+            position: absolute; top: 16px; right: 16px; 
+            background: var(--nav-bg); 
+            width: 38px; height: 38px; 
+            border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; 
+            cursor: pointer; font-size: 22px; color: var(--text); z-index: 10; 
+        }
+        
+        .modal-btn {
+            width: 100%; 
+            padding: 16px; 
+            margin-top: 20px; 
+            border-radius: 14px; 
+            border: none; 
+            background: var(--nav-bg); 
+            font-size: 16px; 
+            font-weight: 600;
+            color: var(--text);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <header><img alt="Модный Lounge bar" src="https://xmgnuvljkvpmksevkwyx.supabase.co/storage/v1/object/public/menu-images/newlogs.svg" class="header-logo"></header>
+    <!-- <header>🥘 Наше Меню</header> -->
+    
+    <nav class="nav-scroller">
+        {nav_items}
+    </nav>
+
+    <div class="container">
+        {sections_html}
+    </div>
+
+    <div id="modal" class="modal-overlay" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="close-btn" onclick="closeModal()">×</div>
+            <div id="modal-body" class="modal-body"></div>
+            <button class="modal-btn" onclick="closeModal()">Закрыть</button>
+        </div>
+    </div>
+
+    <script>
+        const menuItems = {items_json};
+        function openModal(index) {
+            const item = menuItems[index];
+            document.getElementById('modal-body').innerHTML = `
+                <img src="${item.img}">
+                <h2 style="margin:0; font-size: 22px;">${item.name}</h2>
+                <div class="weight-badge">${item.weight || ''}</div>
+                <p style="color:var(--primary); font-size:22px; font-weight:800; margin: 10px 0;">${item.price} ₽</p>
+                <p style="color:var(--text); line-height:1.4; opacity: 0.9;"><b>Состав:</b> ${item.desc}</p>
+            `;
+            document.getElementById('modal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+        function closeModal() { 
+            document.getElementById('modal').style.display = 'none'; 
+            document.body.style.overflow = 'auto'; 
+        }
+
+        // Подсветка активного пункта меню при скролле
+        document.addEventListener("DOMContentLoaded", () => {
+            const categories = document.querySelectorAll('.category-title');
+            const navItems = document.querySelectorAll('.nav-item');
+
+            function highlightNav() {
+                let scrollPosition = window.scrollY;
+                let currentActiveId = '';
+
+                categories.forEach(category => {
+                    // Отступ в 100px позволяет подсвечивать категорию чуть раньше, чем она коснется верха
+                    const categoryTop = category.offsetTop - 100; 
+                    if (scrollPosition >= categoryTop) {
+                        currentActiveId = category.getAttribute('id');
+                    }
+                });
+
+                navItems.forEach(item => {
+                    item.classList.remove('active');
+                    if (item.getAttribute('href') === `#${currentActiveId}`) {
+                        item.classList.add('active');
+                    }
+                });
+            }
+
+            window.addEventListener('scroll', highlightNav);
+            highlightNav(); // Вызываем при загрузке, чтобы выделить первую видимую категорию
+        });
+    </script>
+</body>
+</html>
