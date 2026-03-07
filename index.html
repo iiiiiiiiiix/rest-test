@@ -82,7 +82,11 @@
         }
         .product-img { width: 100%; object-fit: cover; display: block; aspect-ratio: 4/3; }
         .product-info { padding: 12px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
-        .product-title { font-size: 14px; font-weight: 600; margin-bottom: 6px; /* height: 34px; overflow: hidden; */ line-height: 1.2; min-height: 36px;} 
+        .product-title { font-size: 14px; font-weight: 600; margin-bottom: 6px; line-height: 1.2; min-height: 34px; /* height: 34px; display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    */ } 
         .product-price { font-weight: 800; color: var(--primary); font-size: 16px;}
 
         /* Модальное окно */
@@ -144,11 +148,11 @@
     <!-- <header>🥘 Наше Меню</header> -->
     
     <nav class="nav-scroller">
-        <a href="#cat--8072890212535024248" class="nav-item">Пасты</a><a href="#cat-225257701533197853" class="nav-item">Салаты</a><a href="#cat--7512398415961163558" class="nav-item">Роллы</a><a href="#cat-907510609097811518" class="nav-item">Горячие блюда</a><a href="#cat--7672140229801262544" class="nav-item">Супы</a><a href="#cat-3458230063586360646" class="nav-item">Пицца</a><a href="#cat--8097095341643452600" class="nav-item">Десерты</a><a href="#cat-7317813595248865277" class="nav-item">Напитки</a>
+        <a href="#cat--3724687432127896296" class="nav-item">Пасты</a><a href="#cat-465765596992671407" class="nav-item">Салаты</a><a href="#cat--8650791907879830838" class="nav-item">Роллы</a><a href="#cat--8388927216795088306" class="nav-item">Горячие блюда</a><a href="#cat--6041987908594473965" class="nav-item">Супы</a><a href="#cat--157396931087527470" class="nav-item">Пицца</a><a href="#cat-227620934679922599" class="nav-item">Десерты</a><a href="#cat-1707128688139576789" class="nav-item">Напитки</a>
     </nav>
 
     <div class="container">
-        <h2 id="cat--8072890212535024248" class="category-title">Пасты</h2><div class="menu-grid">
+        <h2 id="cat--3724687432127896296" class="category-title">Пасты</h2><div class="menu-grid">
             <div class="product-card" onclick="openModal(0)">
                 <img src="https://sun9-70.userapi.com/s/v1/ig2/GYEcChC8Zxfch0F8VObNTfL0rGWhjQizy_MX804ri062JS9xMZUAJ9G6sgRenSGOsWs4wjVWFdo6b8aZ8m45FIRO.jpg?quality=95&as=32x24,48x36,72x54,108x81,160x120,240x180,360x270,480x360,540x405,640x480,720x540,1080x810,1280x960&from=bu&cs=1280x0" class="product-img" loading="lazy">
                 <div class="product-info">
@@ -162,7 +166,7 @@
                     <div class="product-title">Карбонара</div>
                     <div class="product-price">650 ₽</div>
                 </div>
-            </div></div><h2 id="cat-225257701533197853" class="category-title">Салаты</h2><div class="menu-grid">
+            </div></div><h2 id="cat-465765596992671407" class="category-title">Салаты</h2><div class="menu-grid">
             <div class="product-card" onclick="openModal(2)">
                 <img src="https://sun9-26.userapi.com/s/v1/ig2/Uy5u2MQ2z-M2v8lk-sSbuU3vVFj8cBRCHT6TTeGIRGecpgF7mKh44CofaaE48RVUtUHybNvJsu_EmgdoFYr2NGB0.jpg?quality=95&as=32x23,48x34,72x52,108x77,160x115,240x172,360x258,480x344,540x387,640x458,720x516,1080x774,1280x917&from=bu&cs=1280x0" class="product-img" loading="lazy">
                 <div class="product-info">
@@ -183,7 +187,7 @@
                     <div class="product-title">Греческий салат</div>
                     <div class="product-price">650 ₽</div>
                 </div>
-            </div></div><h2 id="cat--7512398415961163558" class="category-title">Роллы</h2><div class="menu-grid">
+            </div></div><h2 id="cat--8650791907879830838" class="category-title">Роллы</h2><div class="menu-grid">
             <div class="product-card" onclick="openModal(5)">
                 <img src="https://sun9-18.userapi.com/s/v1/ig2/eT4-egvWUjcmHCLX-H5kcKHgT_5uEABRfJAkyROg2TDCe8m7h_V9yJd3r1-NEXTI1bo4MdKCOnXrwKHfdN8j3Dy1.jpg?quality=95&as=32x21,48x32,72x48,108x71,160x106,240x159,360x238,480x318,540x357,640x423,720x476,1080x715,1280x847&from=bu&cs=1280x0" class="product-img" loading="lazy">
                 <div class="product-info">
@@ -211,7 +215,7 @@
                     <div class="product-title">Мафия</div>
                     <div class="product-price">880 ₽</div>
                 </div>
-            </div></div><h2 id="cat-907510609097811518" class="category-title">Горячие блюда</h2><div class="menu-grid">
+            </div></div><h2 id="cat--8388927216795088306" class="category-title">Горячие блюда</h2><div class="menu-grid">
             <div class="product-card" onclick="openModal(9)">
                 <img src="https://cdn.foodsoul.ru/zones/ru/branches/12080/images/items/medium/302e314a7cbdbff87ac74464847b6977.jpg?v1734416278" class="product-img" loading="lazy">
                 <div class="product-info">
@@ -260,7 +264,7 @@
                     <div class="product-title">Картофель жаренный с белыми грибами</div>
                     <div class="product-price">750 ₽</div>
                 </div>
-            </div></div><h2 id="cat--7672140229801262544" class="category-title">Супы</h2><div class="menu-grid">
+            </div></div><h2 id="cat--6041987908594473965" class="category-title">Супы</h2><div class="menu-grid">
             <div class="product-card" onclick="openModal(16)">
                 <img src="https://cdn.foodsoul.ru/zones/ru/branches/12080/images/items/medium/4ffc045882a0f87e9eba55e9cbdd1d27.jpg?v1766041954" class="product-img" loading="lazy">
                 <div class="product-info">
@@ -281,7 +285,7 @@
                     <div class="product-title">Похлебка из чечевицы с вялеными томатами и кунжутом</div>
                     <div class="product-price">450 ₽</div>
                 </div>
-            </div></div><h2 id="cat-3458230063586360646" class="category-title">Пицца</h2><div class="menu-grid">
+            </div></div><h2 id="cat--157396931087527470" class="category-title">Пицца</h2><div class="menu-grid">
             <div class="product-card" onclick="openModal(19)">
                 <img src="https://cdn.foodsoul.ru/zones/ru/branches/12080/images/items/medium/ddee3d05a8110497e5c0a5b224cbccfb.jpg?v1734335139" class="product-img" loading="lazy">
                 <div class="product-info">
@@ -323,7 +327,7 @@
                     <div class="product-title">Детская</div>
                     <div class="product-price">590 ₽</div>
                 </div>
-            </div></div><h2 id="cat--8097095341643452600" class="category-title">Десерты</h2><div class="menu-grid">
+            </div></div><h2 id="cat-227620934679922599" class="category-title">Десерты</h2><div class="menu-grid">
             <div class="product-card" onclick="openModal(25)">
                 <img src="https://cdn.foodsoul.ru/zones/ru/branches/12080/images/items/medium/71df3c668d87abfa8aa1f6c97c3d8283.jpg?v1711368515" class="product-img" loading="lazy">
                 <div class="product-info">
@@ -351,7 +355,7 @@
                     <div class="product-title">Медовик с кремом из грецкого ореха и халвой</div>
                     <div class="product-price">400 ₽</div>
                 </div>
-            </div></div><h2 id="cat-7317813595248865277" class="category-title">Напитки</h2><div class="menu-grid">
+            </div></div><h2 id="cat-1707128688139576789" class="category-title">Напитки</h2><div class="menu-grid">
             <div class="product-card" onclick="openModal(29)">
                 <img src="https://cdn.foodsoul.ru/zones/ru/branches/12080/images/items/medium/c09b6e6e9923416dfe6c1f023c63a784.jpg?v1769001501" class="product-img" loading="lazy">
                 <div class="product-info">
