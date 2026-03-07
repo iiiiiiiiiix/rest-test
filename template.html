@@ -42,8 +42,9 @@
             overflow-x: auto;
             padding: 12px 10px;
             gap: 10px;
-            scrollbar-width: none; 
-            scroll-behavior: smooth; /* Для плавного центрирования кнопок скриптом */
+            scrollbar-width: none;
+            max-width: 1000px;
+            margin: 0 auto;
         }
         .nav-scroller::-webkit-scrollbar { display: none; }
 
@@ -66,7 +67,7 @@
             background: var(--accent);
         }
 
-        .category-title { padding: 20px 15px 10px 0; margin: 0; font-size: 22px; color: var(--text); }
+        .category-title { padding: 20px 15px 10px 0; margin: 0; font-size: 22px; color: var(--text); scroll-margin-top: 50px;}
         
         .container { padding: 12px; max-width: 1000px; margin: 0 auto; }
         .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 30px; }
@@ -178,7 +179,7 @@
             document.body.style.overflow = 'auto'; 
         }
 
-        // Скрипт для подсветки активного пункта меню при скролле
+        // Подсветка активного пункта меню при скролле
         document.addEventListener("DOMContentLoaded", () => {
             const categories = document.querySelectorAll('.category-title');
             const navItems = document.querySelectorAll('.nav-item');
