@@ -187,6 +187,16 @@
                 let scrollPosition = window.scrollY;
                 let currentActiveId = '';
 
+                if (scrollPosition < 50) {
+                    // Очищаем URL от #, если он там есть
+                    if (window.location.hash) {
+                        history.replaceState(null, null, window.location.pathname);
+                    }
+                    // Убираем активный класс со всех кнопок
+                    navItems.forEach(item => item.classList.remove('active'));
+                    return; // Выходим из функции, чтобы не искать активную категорию
+                }
+
                 categories.forEach(category => {
                     // Отступ в 100px позволяет подсвечивать категорию чуть раньше, чем она коснется верха
                     const categoryTop = category.offsetTop - 100; 
@@ -204,7 +214,7 @@
             }
 
             window.addEventListener('scroll', highlightNav);
-            highlightNav(); // Вызываем при загрузке, чтобы выделить первую видимую категорию
+            highlightNav();
         });
     </script>
 </body>
