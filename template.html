@@ -79,7 +79,6 @@
             display: flex; 
             flex-direction: column; 
             box-shadow: 0 6px 16px rgba(74, 63, 53, 0.06);
-            cursor: pointer;
         }
         .product-img { width: 100%; object-fit: cover; display: block; aspect-ratio: 4/3; }
         .product-info { padding: 12px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
@@ -200,8 +199,6 @@
                     item.classList.remove('active');
                     if (item.getAttribute('href') === `#${currentActiveId}`) {
                         item.classList.add('active');
-                        // Плавная прокрутка самого скроллера к активному элементу
-                        item.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
                     }
                 });
             }
