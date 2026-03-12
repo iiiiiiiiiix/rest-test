@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#faf7f2">
     <title>Модный Lounge Bar - Меню</title>
     <style>
@@ -173,7 +173,84 @@
     </div>
 
     <script>
-        const menuItems = {items_json};
+        const menuItems = {items_json};  // Массив, который заполняем
+        let categoryOffsets = [];
+
+        // Функция для расчета позиций категорий (вызываем при загрузке и ресайзе)
+        function updateOffsets() {
+            const categories = document.querySelectorAll('.category-title');
+            categoryOffsets = Array.from(categories).map(cat => ({
+                id: cat.getAttribute('id'),
+                top: cat.offsetTop - 120 // отступ для навигации
+            }));
+        }
+
+        // Подсветка активной категории при скролле
+        function highlightNav() {
+            const scrollPosition = window.scrollY;
+            const navItems = document.querySelectorAll('.nav-item');
+            let currentActiveId = '';
+
+            // Очистка URL и меню в самом верху
+            if (scrollPosition < 50) {
+                // Очищаем URL от #, если он там есть
+                if (window.location.hash) {
+                    history.replaceState(null, null, window.location.pathname);
+                }
+                navItems.forEach(item => item.classList.remove('active'));
+                return;
+            }
+
+            // Поиск активной категории через готовый массив
+            for (let i = categoryOffsets.length - 1; i >= 0; i--) {
+                if (scrollPosition >= categoryOffsets[i].top) {
+                    currentActiveId = categoryOffsets[i].id;
+                    break;
+                }
+            }
+
+            navItems.forEach(item => {
+                const isActive = item.getAttribute('href') === `#${currentActiveId}`;
+                item.classList.toggle('active', isActive);
+                
+                // Центрирование активного элемента в скроллере
+                if (isActive && item.parentElement.scrollWidth > item.parentElement.clientWidth) {
+                    const navScroller = item.parentElement;
+                    const offsetLeft = item.offsetLeft - (navScroller.offsetWidth / 2) + (item.offsetWidth / 2);
+                    navScroller.scrollTo({ left: offsetLeft, behavior: 'smooth' });
+                }
+            });
+        }
+
+        // Оптимизированный слушатель скролла
+        let ticking = false;
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    highlightNav();
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        });
+
+        // Обработка ресайза (при повороте экрана)
+        window.addEventListener('resize', () => {
+            updateOffsets();
+            const modal = document.getElementById('modal');
+            if (getComputedStyle(modal).display === 'flex') {
+                modal.style.display = 'none';
+                modal.offsetHeight; 
+                modal.style.display = 'flex';
+            }
+        });
+
+        // Инициализация
+        document.addEventListener("DOMContentLoaded", () => {
+            updateOffsets();
+            highlightNav();
+        });
+
         function openModal(index) {
             const item = menuItems[index]; // Массив, который наполняем
             const modalBody = document.getElementById('modal-body');
@@ -207,54 +284,6 @@
             document.body.style.overflow = 'auto'; 
         }
 
-        window.addEventListener('resize', () => {
-            const modal = document.getElementById('modal');
-            // Если модальное окно открыто (flex), обновляем его состояние
-            if (getComputedStyle(modal).display === 'flex') {
-                modal.style.display = 'none';
-                modal.offsetHeight; // триггер перерисовки (reflow)
-                modal.style.display = 'flex';
-            }
-        });
-
-        // Подсветка активного пункта меню при скролле
-        document.addEventListener("DOMContentLoaded", () => {
-            const categories = document.querySelectorAll('.category-title');
-            const navItems = document.querySelectorAll('.nav-item');
-
-            function highlightNav() {
-                let scrollPosition = window.scrollY;
-                let currentActiveId = '';
-
-                if (scrollPosition < 50) {
-                    // Очищаем URL от #, если он там есть
-                    if (window.location.hash) {
-                        history.replaceState(null, null, window.location.pathname);
-                    }
-                    // Убираем активный класс со всех кнопок
-                    navItems.forEach(item => item.classList.remove('active'));
-                    return; // Выходим из функции, чтобы не искать активную категорию
-                }
-
-                categories.forEach(category => {
-                    // Отступ в 100px позволяет подсвечивать категорию чуть раньше, чем она коснется верха
-                    const categoryTop = category.offsetTop - 100; 
-                    if (scrollPosition >= categoryTop) {
-                        currentActiveId = category.getAttribute('id');
-                    }
-                });
-
-                navItems.forEach(item => {
-                    item.classList.remove('active');
-                    if (item.getAttribute('href') === `#${currentActiveId}`) {
-                        item.classList.add('active');
-                    }
-                });
-            }
-
-            window.addEventListener('scroll', highlightNav);
-            highlightNav();
-        });
     </script>
 </body>
 </html>
