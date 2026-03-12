@@ -35,12 +35,18 @@ def build():
         sections_html += f'<h2 id="{cat_id}" class="category-title">{cat_name}</h2>'
         sections_html += '<div class="menu-grid">'
         for item in cat_items:
+            # Проверяем наличие цены. Если цена есть, формируем строку с символом ₽
+            price_val = item.get('price')
+            price_html = f'<div class="product-price">{price_val} ₽</div>' if price_val else ''
+            # Проверяем наличие картинки для src. если пусто, атрибут src будет пустым, а CSS его скроет
+            img_src = item.get('img', '')
+            
             sections_html += f'''
             <div class="product-card" onclick="openModal({global_idx})">
                 <img src="{item['img']}" class="product-img" loading="lazy">
                 <div class="product-info">
                     <div class="product-title">{item['name']}</div>
-                    <div class="product-price">{item['price']} ₽</div>
+                    {price_html}
                 </div>
             </div>'''
             flat_items_for_js.append(item)
