@@ -191,7 +191,6 @@
             const navItems = document.querySelectorAll('.nav-item');
             let currentActiveId = '';
 
-            // Очистка URL и меню в самом верху
             if (scrollPosition < 50) {
                 // Очищаем URL от #, если он там есть
                 if (window.location.hash) {
@@ -209,16 +208,10 @@
                 }
             }
 
+            // Подсвечиваем только нужный пункт
             navItems.forEach(item => {
                 const isActive = item.getAttribute('href') === `#${currentActiveId}`;
                 item.classList.toggle('active', isActive);
-                
-                // Центрирование активного элемента в скроллере
-                if (isActive && item.parentElement.scrollWidth > item.parentElement.clientWidth) {
-                    const navScroller = item.parentElement;
-                    const offsetLeft = item.offsetLeft - (navScroller.offsetWidth / 2) + (item.offsetWidth / 2);
-                    navScroller.scrollTo({ left: offsetLeft, behavior: 'smooth' });
-                }
             });
         }
 
@@ -251,6 +244,7 @@
             highlightNav();
         });
 
+        // Функции модального окна
         function openModal(index) {
             const item = menuItems[index]; // Массив, который наполняем
             const modalBody = document.getElementById('modal-body');
@@ -283,7 +277,6 @@
             document.getElementById('modal').style.display = 'none'; 
             document.body.style.overflow = 'auto'; 
         }
-
     </script>
 </body>
 </html>
