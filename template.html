@@ -175,20 +175,53 @@
 
     <script>
         const menuItems = {items_json};
+        // function openModal(index) {
+        //     const item = menuItems[index];
+        //     document.getElementById('modal-body').innerHTML = `
+        //         ${item.img ? `<img src="${item.img}" alt="${item.name}">` : ''}
+        //         <h2 style="margin:0; font-size: 22px;">${item.name}</h2>
+        //         <div class="weight-badge">${item.weight || ''}</div>
+        //         <p style="color:var(--primary); font-size:22px; font-weight:800; margin: 10px 0;">${item.price} ₽</p>
+        //         ${item.desc && item.desc.trim() !== "" ? `
+        //             <p style="color:var(--text); line-height:1.4; opacity: 0.9;"><b>Состав:</b> ${item.desc}</p>
+        //         ` : ''}
+        //     `;
+        //     document.getElementById('modal').style.display = 'flex';
+        //     document.body.style.overflow = 'hidden'; // Запрет прокрутки фона
+        // }
         function openModal(index) {
-            const item = menuItems[index];
-            document.getElementById('modal-body').innerHTML = `
-                ${item.img ? `<img src="${item.img}" alt="${item.name}">` : ''}
+            const item = menuItems[index]; // Массив, который наполняем
+            const modalBody = document.getElementById('modal-body');
+            
+            // 1. Проверка наличия цены
+            const priceHTML = item.price ? 
+                `<p style="color:var(--primary); font-size:22px; font-weight:800; margin: 10px 0;">${item.price} ₽</p>` : '';
+        
+            // 2. Проверка наличия состава (desc)
+            const descHTML = (item.desc && item.desc.trim() !== "") ? `
+                <div style="margin: 15px 0;">
+                    <span>
+                        <strong style="color:var(--text); line-height:1.4; opacity: 0.9; display: inline;">Состав: </strong>
+                        <div style="color:var(--text); line-height:1.4; opacity: 0.9; display: inline;">${item.desc}</p>
+                    </span>
+                </div>
+            ` : '';
+            
+            // 3. Проверка наличия картинки
+            const imgHTML = item.img ? `<img src="${item.img}">` : '';
+        
+            modalBody.innerHTML = `
+                ${imgHTML}
                 <h2 style="margin:0; font-size: 22px;">${item.name}</h2>
-                <div class="weight-badge">${item.weight || ''}</div>
-                <p style="color:var(--primary); font-size:22px; font-weight:800; margin: 10px 0;">${item.price} ₽</p>
-                ${item.desc && item.desc.trim() !== "" ? `
-                    <p style="color:var(--text); line-height:1.4; opacity: 0.9;"><b>Состав:</b> ${item.desc}</p>
-                ` : ''}
+                ${item.weight ? `<div class="weight-badge">${item.weight}</div>` : ''}
+                ${descHTML}
+                ${priceHTML}
             `;
+        
             document.getElementById('modal').style.display = 'flex';
             document.body.style.overflow = 'hidden'; // Запрет прокрутки фона
         }
+        
         function closeModal() { 
             document.getElementById('modal').style.display = 'none'; 
             document.body.style.overflow = 'auto'; 
