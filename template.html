@@ -184,12 +184,16 @@
             const priceHTML = item.price ? 
                 `<p style="color:var(--primary); font-size:22px; font-weight:800; margin: 10px 0;">${item.price} ₽</p>` : '';
             const descHTML = (item.desc && item.desc.trim() !== "") ? `
-                <div style="margin: 15px 0;">
-                    <span>
-                        <strong style="color:var(--text); line-height:1.4; opacity: 0.9; display: inline;">Состав: </strong>
-                        <div style="color:var(--text); line-height:1.4; opacity: 0.9; display: inline;">${item.desc}</p>
-                    </span>
-                </div>
+                // <div style="margin: 15px 0;">
+                //     <span>
+                //         <strong style="color: var(--text); line-height: 1.4; opacity: 0.9; display: inline;">Состав: </strong>
+                //         <span style="color:var(--text); line-height:1.4; opacity: 0.9; display: inline;">${item.desc}</span>
+                //     </span>
+                // </div>
+                <p style="margin: 15px 0; color: var(--text); line-height: 1.4; opacity: 0.9;">
+                    <strong style="color: var(--text); white-space: nowrap;">Состав:&nbsp;</strong>
+                    <span>${item.desc}</span>
+                </p>
             ` : '';
             
             modalBody.innerHTML = `
