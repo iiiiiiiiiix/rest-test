@@ -32,15 +32,46 @@
         .header-logo {
             width: 130px;
         }
-
-        .nav-scroller {
+        .sticky-header {
             position: sticky;
             top: 0;
             z-index: 100;
             background: var(--bg);
+            padding-top: 10px;
+        }
+        .main-tabs {
+            display: flex;
+            background: var(--nav-bg);
+            border-radius: 14px;
+            max-width: 320px;
+            margin: 0 auto 10px auto;
+            padding: 4px;
+        }
+        
+        .main-tab {
+            flex: 1;
+            padding: 10px 0;
+            border: none;
+            background: transparent;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .main-tab.active {
+            background: var(--white);
+            box-shadow: 0 2px 8px rgba(74, 63, 53, 0.1);
+            color: var(--primary);
+        }
+        
+        /* У старого nav-scroller убираем липкость, он просто лежит внутри sticky-header */
+        .nav-scroller {
             display: flex;
             overflow-x: auto;
-            padding: 12px 10px;
+            padding: 0 10px 12px 10px;
             gap: 10px;
             scrollbar-width: none;
             max-width: 1000px;
@@ -156,10 +187,16 @@
 <body>
     <header><img alt="Модный Lounge bar" src="https://xmgnuvljkvpmksevkwyx.supabase.co/storage/v1/object/public/menu-images/newlogs.svg" class="header-logo"></header>
     
-    <nav class="nav-scroller">
-        {nav_items}
-    </nav>
-
+    <div class="sticky-header">
+        <div class="main-tabs">
+            <button class="main-tab active" onclick="switchTab('food', this)">Кухня</button>
+            <button class="main-tab" onclick="switchTab('bar', this)">Бар</button>
+        </div>
+        <nav class="nav-scroller" id="nav-scroller">
+            {nav_items}
+        </nav>
+    </div>
+    
     <div class="container">
         {sections_html}
     </div>
@@ -174,6 +211,38 @@
 
     <script>
         const menuItems = {items_json};  // Массив, который заполняем
+
+        function switchTab(tabName, clickedBtn) {
+            // Переключаем активную кнопку
+            document.querySelectorAll('.main-tab').forEach(btn => btn.classList.remove('active'));
+            clickedBtn.classList.add('active');
+        
+            // Показываем нужные ссылки в скроллере и скрываем ненужные
+            document.querySelectorAll('.nav-item').forEach(item => {
+                if(item.getAttribute('data-tab') === tabName) {
+                    item.style.display = 'inline-block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        
+            // Сбрасываем скролл горизонтального меню в начало
+            document.getElementById('nav-scroller').scrollLeft = 0;
+        
+            // Показываем нужный контент
+            document.getElementById('content-food').style.display = tabName === 'food' ? 'block' : 'none';
+            document.getElementById('content-bar').style.display = tabName === 'bar' ? 'block' : 'none';
+        
+            // Возвращаем пользователя наверх к началу контента
+            window.scrollTo({ top: 0, behavior: 'auto' });
+        
+            // Обновляем расчеты для активной категории
+            setTimeout(() => {
+                updateOffsets();
+                highlightNav();
+            }, 50);
+        }
+        
         let categoryOffsets = [];
 
         // Функция для расчета позиций категорий (вызываем при загрузке и ресайзе)
