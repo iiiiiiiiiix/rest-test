@@ -18,22 +18,28 @@ def build():
             categories[cat] = []
         categories[cat].append(item)
 
-    # Генерируем HTML для навигации (кнопки сверху)
     nav_html = ""
-    sections_html = ""
-    
-    # Чтобы передать данные в JS, нам нужен плоский список с сохранением порядка
+    sections_food_html = ""
+    sections_bar_html = ""
     flat_items_for_js = []
     global_idx = 0
 
     for cat_name, cat_items in categories.items():
-        # Кнопка в меню
-        cat_id = f"cat-{hash(cat_name)}"
-        nav_html += f'<a href="#{cat_id}" class="nav-item">{cat_name}</a>'
+        # Определяем, к какой вкладке относится категория (берем из первого товара в категории)
+        first_item_tab = cat_items[0].get('tab', 'Кухня').strip().lower()
+        is_bar = (first_item_tab == 'бар')
         
-        # Секция с карточками
-        sections_html += f'<h2 id="{cat_id}" class="category-title">{cat_name}</h2>'
-        sections_html += '<div class="menu-grid">'
+        cat_id = f"cat-{hash(cat_name)}"
+        tab_key = "bar" if is_bar else "food"
+        
+        # Скрываем кнопки бара по умолчанию через style
+        display_style = 'style="display: none;"' if is_bar else 'style="display: inline-block;"'
+        
+        # Кнопка навигации
+        nav_html += f'<a href="#{cat_id}" class="nav-item" data-tab="{tab_key}" {display_style}>{cat_name}</a>'
+        
+        # Генерация карточек
+        section_html = f'<h2 id="{cat_id}" class="category-title">{cat_name}</h2>\n<div class="menu-grid">'
         for item in cat_items:
             # Проверяем наличие цены. Если цена есть, формируем строку с символом ₽
             price_val = item.get('price')
@@ -41,9 +47,9 @@ def build():
             # Проверяем наличие картинки для src. если пусто, атрибут src будет пустым, а CSS его скроет
             img_src = item.get('img', '')
             
-            sections_html += f'''
+            section_html += f'''
             <div class="product-card" onclick="openModal({global_idx})">
-                <img src="{item['img']}" class="product-img" loading="lazy">
+                <img src="{img_src}" class="product-img" loading="lazy">
                 <div class="product-info">
                     <div class="product-title">{item['name']}</div>
                     {price_html}
@@ -51,13 +57,19 @@ def build():
             </div>'''
             flat_items_for_js.append(item)
             global_idx += 1
-        sections_html += '</div>'
+        section_html += '</div>\n'
+        
+        if is_bar:
+            sections_bar_html += section_html
+        else:
+            sections_food_html += section_html
 
     with open('template.html', 'r', encoding='utf-8') as f:
         template = f.read()
 
     final_html = template.replace('{nav_items}', nav_html)
-    final_html = final_html.replace('{sections_html}', sections_html)
+    final_html = final_html.replace('{sections_food}', sections_food_html)
+    final_html = final_html.replace('{sections_bar}', sections_bar_html)
     final_html = final_html.replace('{items_json}', json.dumps(flat_items_for_js, ensure_ascii=False))
 
     with open('index.html', 'w', encoding='utf-8') as f:
