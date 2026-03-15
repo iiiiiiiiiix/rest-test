@@ -15,10 +15,14 @@ def get_drive_id(url):
     return None
 
 def build():
-    response = requests.get(SHEET_CSV_URL)
-    response.encoding = 'utf-8'
-    reader = csv.DictReader(response.text.splitlines())
-    items = list(reader)
+    try:
+        response = requests.get(SHEET_CSV_URL, timeout=30)
+        response.encoding = 'utf-8'
+        reader = csv.DictReader(response.text.splitlines())
+        items = list(reader)
+    except Exception as e:
+        print(f"Ошибка при загрузке таблицы: {e}")
+        return
 
     # Группируем по категориям
     categories = {}
@@ -41,31 +45,40 @@ def build():
         
         cat_id = f"cat-{abs(hash(cat_name))}"
         tab_key = "bar" if is_bar else "food"
-
-        # Скрываем категории бара при первой загрузке
         display_style = 'style="display: none;"' if is_bar else 'style="display: inline-block;"'
         
         nav_html += f'<a href="#{cat_id}" class="nav-item" data-tab="{tab_key}" {display_style}>{cat_name}</a>'
         
         section_html = f'<h2 id="{cat_id}" class="category-title">{cat_name}</h2>\n<div class="menu-grid">'
+        
         for item in cat_items:
-            price_val = item.get('price')
+            price_val = item.get('price', '').strip()
             price_html = f'<div class="product-price">{price_val} ₽</div>' if price_val else ''
             
             img_url = item.get('img', '').strip()
             img_id = get_drive_id(img_url)
             
-            # Локальные пути, которые создал process_images.py
-            if not img_id:
-                thumb_src = None
-                item['img_full'] = None
-                img_tag = "" # При пустой ячейке таблицы картинки не будет в HTML
-                card_class = "product-card no-image"
+            if img_id:
+                # Проверяем, существуют ли файлы физически в репозитории
+                t_path = f"assets/img/thumbs/{img_id}.webp"
+                f_path = f"assets/img/full/{img_id}.webp"
+                
+                # Если скрипт обработки еще не скачал их, временно не показываем
+                if os.path.exists(t_path):
+                    item['img_thumb'] = t_path
+                    item['img_full'] = f_path
+                    img_tag = f'<img src="{t_path}" class="product-img" loading="lazy" alt="{item["name"]}">'
+                    card_class = "product-card"
+                else:
+                    item['img_thumb'] = None
+                    item['img_full'] = None
+                    img_tag = ""
+                    card_class = "product-card no-image"
             else:
-                thumb_src = f"assets/img/thumbs/{img_id}.webp"
-                item['img_full'] = f"assets/img/full/{img_id}.webp"
-                img_tag = f'<img src="{thumb_src}" class="product-img" loading="lazy">'
-                card_class = "product-card"
+                item['img_thumb'] = None
+                item['img_full'] = None
+                img_tag = ""
+                card_class = "product-card no-image"
 
             section_html += f'''
             <div class="{card_class}" onclick="openModal({global_idx})">
@@ -75,8 +88,10 @@ def build():
                     {price_html}
                 </div>
             </div>'''
+
             flat_items_for_js.append(item)
             global_idx += 1
+
         section_html += '</div>\n'
         
         if is_bar:
@@ -84,13 +99,17 @@ def build():
         else:
             sections_food_html += section_html
 
+    # Запись в шаблон
+    if not os.path.exists('template.html'):
+        print("Ошибка: template.html не найден")
+        return
+
     with open('template.html', 'r', encoding='utf-8') as f:
         template = f.read()
 
     final_html = template.replace('{nav_items}', nav_html)
     final_html = final_html.replace('{sections_food}', sections_food_html)
     final_html = final_html.replace('{sections_bar}', sections_bar_html)
-    # JSON содержит пути к локальным webp (thumb и full)
     final_html = final_html.replace('{items_json}', json.dumps(flat_items_for_js, ensure_ascii=False))
 
     with open('index.html', 'w', encoding='utf-8') as f:
