@@ -120,6 +120,9 @@
             flex-direction: column; 
             box-shadow: 0 6px 16px rgba(74, 63, 53, 0.06);
         }
+        .product-card.no-image .product-img {
+            display: none;
+        }
         .product-img {
             width: 100%;
             object-fit: cover;
@@ -165,7 +168,18 @@
         }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
-        .modal-body img { width: 100%; border-radius: 16px; margin-bottom: 15px;}
+        .modal-body img {
+            width: 100%;
+            border-radius: 16px;
+            margin-bottom: 15px;
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
         .weight-badge { color: #8c7f70; font-size: 14px; margin: 5px 0 12px;}
         
         .close-btn { 
@@ -325,11 +339,10 @@
             highlightNav();
         });
         function openModal(index) {
-            const item = menuItems[index]; // Массив, который наполняем
+            const item = menuItems[index]; // Массив, который будем наполнять
             const modalBody = document.getElementById('modal-body');
-
-            // Проверки наличия значений полей
-            const imgHTML = item.img ? `<img src="${item.img}">` : '';
+        
+            const imgHTML = item.img_full ? `<img src="${item.img_full}">`  : '';
             const weightHTML = item.weight ? `<div class="weight-badge">${item.weight}</div>` : '';
             const priceHTML = item.price ? 
                 `<p style="color:var(--primary); font-size:22px; font-weight:800; margin: 10px 0;">${item.price} ₽</p>` : '';
