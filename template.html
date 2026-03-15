@@ -42,35 +42,42 @@
             /* padding-top: 15px; */
         }
 
-        .nav-container {
+        .main-tabs {
             display: flex;
-            flex-direction: column;
-            gap: 6px;
-            padding: 10px 0;
-            background: rgba(250, 247, 242, 0.97);
+            justify-content: center;
+            gap: 10px;
+            margin: 0 auto;
+            padding: 5px 0 0;
+            max-width: 320px;
         }
-        .nav-row {
-            display: flex;
-            align-items: center;
-            padding: 0 10px;
-        }
-        
-        .nav-label {
-            font-weight: 800;
-            font-size: 14px;
+        .main-tab {
+            position: relative;
+            padding: 8px 13px;
+            border: none;
+            background: transparent;
+            font-weight: 600;
+            font-size: 16px;
             color: var(--inactive);
-            min-width: 55px; /* Чтобы "Кухня" и "Бар" выровнялись */
-            flex-shrink: 0;
+            cursor: pointer;
+            transition: color 0.3s ease;
         }
+        .main-tab.active {
+            color: var(--primary);
+            background: transparent;
+            box-shadow: none;
+        }
+        /* .main-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--primary);
+            border-radius: 2px;
+        } */
         
         .nav-scroller {
-            display: flex;
-            overflow-x: auto;
-            gap: 8px;
-            scrollbar-width: none;
-            -webkit-overflow-scrolling: touch;
-        }
-        /* .nav-scroller {
             display: flex;
             overflow-x: auto;
             padding: 5px 10px 12px;
@@ -78,7 +85,7 @@
             scrollbar-width: none;
             max-width: 1000px;
             margin: 0 auto;
-        } */
+        }
         .nav-scroller::-webkit-scrollbar { display: none; }
 
         .nav-item {
@@ -186,23 +193,20 @@
 </head>
 <body>
     <header><img src="https://xmgnuvljkvpmksevkwyx.supabase.co/storage/v1/object/public/menu-images/newlogs.svg" class="header-logo"></header>
-
-    <div class="sticky-header">
-        <div class="nav-container">
-            <div class="nav-row">
-                <span class="nav-label">Кухня:</span>
-                <div class="nav-scroller">{nav_food_items}</div>
-            </div>
-            <div class="nav-row">
-                <span class="nav-label">Бар:</span>
-                <div class="nav-scroller">{nav_bar_items}</div>
-            </div>
-        </div>
-    </div>
     
+    <div class="sticky-header">
+        <div class="main-tabs">
+            <button class="main-tab active" onclick="switchTab('food', this)">Кухня</button>
+            <button class="main-tab" onclick="switchTab('bar', this)">Бар</button>
+        </div>
+        <nav class="nav-scroller" id="nav-scroller">
+            {nav_items}
+        </nav>
+    </div>
+
     <div class="container">
         <div id="content-food">{sections_food}</div>
-        <div id="content-bar">{sections_bar}</div>
+        <div id="content-bar" style="display: none;">{sections_bar}</div>
     </div>
 
     <div id="modal" class="modal-overlay" onclick="closeModal()">
@@ -216,6 +220,41 @@
     <script>
         const menuItems = {items_json};  // Массив, который заполняем
 
+        function switchTab(tabName, clickedBtn) {
+            // Проверяем, нажат ли уже активный таб
+            const isAlreadyActive = clickedBtn.classList.contains('active');
+        
+            if (isAlreadyActive) {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                return; // Прерываем выполнение, так как переключать ничего не нужно
+            }
+        
+            // Если это новый таб — выполняем логику переключения
+            document.querySelectorAll('.main-tab').forEach(btn => btn.classList.remove('active'));
+            clickedBtn.classList.add('active');
+        
+            // Показываем нужные ссылки в скроллере и скрываем ненужные
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.style.display = item.getAttribute('data-tab') === tabName ? 'inline-block' : 'none';
+            });
+        
+            // Сбрасываем скролл горизонтального меню в начало
+            document.getElementById('nav-scroller').scrollLeft = 0;
+        
+            // Показываем нужный контент исходя из активного таба
+            document.getElementById('content-food').style.display = tabName === 'food' ? 'block' : 'none';
+            document.getElementById('content-bar').style.display = tabName === 'bar' ? 'block' : 'none';
+        
+            // переход наверх при смене таба
+            window.scrollTo({ top: 0, behavior: 'auto' });
+        
+            // Обновляем расчеты для активной категории
+            setTimeout(() => {
+                updateOffsets();
+                highlightNav();
+            }, 50);
+        }
+        
         let categoryOffsets = [];
 
         // Функция для расчета позиций категорий (вызываем при загрузке и ресайзе)
