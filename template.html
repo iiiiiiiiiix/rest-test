@@ -79,23 +79,24 @@
         .nav-container {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 4px;
             padding: 10px 0;
             background: rgba(250, 247, 242, 0.97);
-            border-bottom: 1px solid #ebe4d8;
         }
         .nav-row {
             display: flex;
             align-items: center;
             padding: 0 10px;
-            gap: 10px;
         }
         
         .nav-label {
             font-weight: 800;
-            font-size: 13px;
-            color: #4a3f35;
+            font-size: 11px;
+            color: var(--inactive);
             min-width: 45px; /* Чтобы "Кухня" и "Бар" выровнялись */
+            flex-shrink: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
         .nav-scroller {
@@ -103,6 +104,7 @@
             overflow-x: auto;
             gap: 8px;
             scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
         }
         /* .nav-scroller {
             display: flex;
@@ -220,23 +222,23 @@
 </head>
 <body>
     <header><img src="https://xmgnuvljkvpmksevkwyx.supabase.co/storage/v1/object/public/menu-images/newlogs.svg" class="header-logo"></header>
-    
-    <nav class="sticky-header">
+
+    <div class="sticky-header">
         <div class="nav-container">
             <div class="nav-row">
                 <span class="nav-label">Кухня:</span>
-                <div class="nav-scroller" id="nav-food">{nav_items_food}</div>
+                <div class="nav-scroller">{nav_food_items}</div>
             </div>
             <div class="nav-row">
                 <span class="nav-label">Бар:</span>
-                <div class="nav-scroller" id="nav-bar">{nav_items_bar}</div>
+                <div class="nav-scroller">{nav_bar_items}</div>
             </div>
         </div>
     </div>
-
+    
     <div class="container">
         <div id="content-food">{sections_food}</div>
-        <div id="content-bar" style="display: none;">{sections_bar}</div>
+        <div id="content-bar">{sections_bar}</div>
     </div>
 
     <div id="modal" class="modal-overlay" onclick="closeModal()">
