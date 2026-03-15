@@ -165,7 +165,18 @@
         }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
-        .modal-body img { width: 100%; border-radius: 16px; margin-bottom: 15px; display: block;}
+        .modal-body img {
+            width: 100%;
+            border-radius: 16px;
+            margin-bottom: 15px;
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
         .weight-badge { color: #8c7f70; font-size: 14px; margin: 5px 0 12px;}
         
         .close-btn { 
