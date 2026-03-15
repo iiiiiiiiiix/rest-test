@@ -76,8 +76,35 @@
             background-color: var(--primary);
             border-radius: 2px;
         } */
+        .nav-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 10px 0;
+            background: rgba(250, 247, 242, 0.97);
+            border-bottom: 1px solid #ebe4d8;
+        }
+        .nav-row {
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            gap: 10px;
+        }
+        
+        .nav-label {
+            font-weight: 800;
+            font-size: 13px;
+            color: #4a3f35;
+            min-width: 45px; /* Чтобы "Кухня" и "Бар" выровнялись */
+        }
         
         .nav-scroller {
+            display: flex;
+            overflow-x: auto;
+            gap: 8px;
+            scrollbar-width: none;
+        }
+        /* .nav-scroller {
             display: flex;
             overflow-x: auto;
             padding: 5px 10px 12px;
@@ -85,7 +112,7 @@
             scrollbar-width: none;
             max-width: 1000px;
             margin: 0 auto;
-        }
+        } */
         .nav-scroller::-webkit-scrollbar { display: none; }
 
         .nav-item {
@@ -194,14 +221,17 @@
 <body>
     <header><img src="https://xmgnuvljkvpmksevkwyx.supabase.co/storage/v1/object/public/menu-images/newlogs.svg" class="header-logo"></header>
     
-    <div class="sticky-header">
-        <div class="main-tabs">
-            <button class="main-tab active" onclick="switchTab('food', this)">Кухня</button>
-            <button class="main-tab" onclick="switchTab('bar', this)">Бар</button>
+    <nav class="sticky-header">
+        <div class="nav-container">
+            <div class="nav-row">
+                <span class="nav-label">Кухня:</span>
+                <div class="nav-scroller" id="nav-food">{nav_items_food}</div>
+            </div>
+            <div class="nav-row">
+                <span class="nav-label">Бар:</span>
+                <div class="nav-scroller" id="nav-bar">{nav_items_bar}</div>
+            </div>
         </div>
-        <nav class="nav-scroller" id="nav-scroller">
-            {nav_items}
-        </nav>
     </div>
 
     <div class="container">
