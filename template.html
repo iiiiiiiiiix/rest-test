@@ -339,10 +339,7 @@
             const item = menuItems[index]; // Массив, который будем наполнять
             const modalBody = document.getElementById('modal-body');
         
-            // используем локальный путь к полноразмерному фото
-            const fullImgSrc = item.img_full || 'assets/img/placeholder.webp';
-            
-            const imgHTML = `<img src="${fullImgSrc}" alt="${item.name}">`;
+            const imgHTML = item.img_full ? `<img src="${item.img_full}">`  : '';
             const weightHTML = item.weight ? `<div class="weight-badge">${item.weight}</div>` : '';
             const priceHTML = item.price ? 
                 `<p style="color:var(--primary); font-size:22px; font-weight:800; margin: 10px 0;">${item.price} ₽</p>` : '';
