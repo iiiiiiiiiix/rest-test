@@ -225,43 +225,31 @@
             const isAlreadyActive = clickedBtn.classList.contains('active');
         
             if (isAlreadyActive) {
-                // Если таб тот же — просто скроллим вверх. 
-                // Так как в CSS стоит smooth, переход будет плавным.
-                window.scrollTo({ top: 0 }); 
-                return; 
+                // Если таб уже активен — плавно скроллим наверх
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                return; // Прерываем выполнение, так как переключать ничего не нужно
             }
         
-            // --- ЛОГИКА МГНОВЕННОГО ПЕРЕКЛЮЧЕНИЯ ---
-            
-            // 1. Временно отключаем плавный скролл у всего документа
-            document.documentElement.style.scrollBehavior = 'auto';
-        
-            // 2. Переключаем табы и контент
+            // Если это новый таб — выполняем логику переключения
             document.querySelectorAll('.main-tab').forEach(btn => btn.classList.remove('active'));
             clickedBtn.classList.add('active');
         
-            // Переключаем видимость категорий в навигации
+            // Показываем нужные ссылки в скроллере и скрываем ненужные
             document.querySelectorAll('.nav-item').forEach(item => {
-                if(item.getAttribute('data-tab') === tabName) {
-                    item.style.display = 'inline-block';
-                } else {
-                    item.style.display = 'none';
-                }
+                item.style.display = item.getAttribute('data-tab') === tabName ? 'inline-block' : 'none';
             });
         
+            // Сбрасываем скролл горизонтального меню в начало
+            document.getElementById('nav-scroller').scrollLeft = 0;
+        
+            // Показываем нужный контент исходя из активного таба
             document.getElementById('content-food').style.display = tabName === 'food' ? 'block' : 'none';
             document.getElementById('content-bar').style.display = tabName === 'bar' ? 'block' : 'none';
         
-            // 3. Прыгаем наверх мгновенно
+            // Мгновенный переход наверх при смене таба
             window.scrollTo({ top: 0, behavior: 'auto' });
         
-            // 4. Возвращаем плавный скролл обратно для обычных категорий
-            // Используем requestAnimationFrame, чтобы браузер успел обработать "прыжок" до возврата плавности
-            requestAnimationFrame(() => {
-                document.documentElement.style.scrollBehavior = 'smooth';
-            });
-        
-            // Обновляем офсеты
+            // Обновляем расчеты для активной категории
             setTimeout(() => {
                 updateOffsets();
                 highlightNav();
@@ -275,7 +263,7 @@
             const activeContainer = document.querySelector('#content-food[style*="block"], #content-bar[style*="block"]');
             if(!activeContainer) return;
             categoryOffsets = Array.from(activeContainer.querySelectorAll('.category-title')).map(el => ({
-                id: el.id, top: el.offsetTop - 230 // отступ для навигации
+                id: el.id, top: el.offsetTop - 190 // отступ для навигации
             }));
         }
 
