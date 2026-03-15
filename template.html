@@ -263,7 +263,7 @@
             const activeContainer = document.querySelector('#content-food[style*="block"], #content-bar[style*="block"]');
             if(!activeContainer) return;
             categoryOffsets = Array.from(activeContainer.querySelectorAll('.category-title')).map(el => ({
-                id: el.id, top: el.offsetTop - 160 // отступ для навигации
+                id: el.id, top: el.offsetTop - 120 // отступ для навигации
             }));
         }
 
