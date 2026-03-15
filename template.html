@@ -169,6 +169,10 @@
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
         .modal-body img {
+            aspect-ratio: 4 / 3; 
+            object-fit: cover;
+            height: auto;
+            
             width: 100%;
             border-radius: 16px;
             margin-bottom: 15px;
@@ -178,6 +182,11 @@
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
+        }
+        
+        /* Стили для модалки без фото */
+        .modal-body:has(h2:first-child) {
+            padding-top: 5px;
         }
         
         .weight-badge { color: #8c7f70; font-size: 14px; margin: 5px 0 12px;}
