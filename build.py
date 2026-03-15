@@ -1,8 +1,19 @@
 import requests
 import json
 import csv
+import os
 
 SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVezxfe40Q-78IQvERF0u42mMOqAMNAmJ-aHJN4Zx9_S99ud7GYZMaENCQBb_hvujpYjb3sT8aITCM/pub?output=csv"
+
+def get_drive_id(url):
+    """Извлекает ID из ссылки Google Drive"""
+    if not url or not isinstance(url, str):
+        return None
+    if '/d/' in url:
+        return url.split('/d/')[1].split('/')[0]
+    elif 'id=' in url:
+        return url.split('id=')[1].split('&')[0]
+    return None
 
 def build():
     response = requests.get(SHEET_CSV_URL)
@@ -28,10 +39,10 @@ def build():
         # Определяем вкладку по первому товару в категории
         raw_tab = cat_items[0].get('tab', 'Кухня').strip().lower()
         is_bar = (raw_tab == 'бар')
-        
-        cat_id = f"cat-{hash(cat_name)}"
+
+        cat_id = f"cat-{abs(hash(cat_name))}"
         tab_key = "bar" if is_bar else "food"
-        
+
         # Скрываем категории бара при первой загрузке
         display_style = 'style="display: none;"' if is_bar else 'style="display: inline-block;"'
         
@@ -39,13 +50,28 @@ def build():
         
         section_html = f'<h2 id="{cat_id}" class="category-title">{cat_name}</h2>\n<div class="menu-grid">'
         for item in cat_items:
+            img_url = item.get('img', '')
+            img_id = get_drive_id(img_url)
+            
+            # Локальные пути, которые создал process_images.py
+            if img_id:
+                # Ссылаемся на файлы, которые подготовил process_images.py
+                thumb_src = f"assets/img/thumbs/{img_id}.webp"
+                full_src = f"assets/img/full/{img_id}.webp"
+            else:
+                thumb_src = "assets/img/placeholder.png" # Картинка-заглушка
+                full_src = "assets/img/placeholder.png"
+
+            # Обновляем объект item для JS (чтобы модалка знала путь к full фото)
+            item['img_thumb'] = thumb_src
+            item['img_full'] = full_src
+
             price_val = item.get('price')
             price_html = f'<div class="product-price">{price_val} ₽</div>' if price_val else ''
-            img_src = item.get('img', '')
             
             section_html += f'''
             <div class="product-card" onclick="openModal({global_idx})">
-                <img src="{img_src}" class="product-img" loading="lazy">
+                <img src="{thumb_src}" class="product-img" loading="lazy" alt="{item['name']}">
                 <div class="product-info">
                     <div class="product-title">{item['name']}</div>
                     {price_html}
