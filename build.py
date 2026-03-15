@@ -18,25 +18,25 @@ def build():
             categories[cat] = []
         categories[cat].append(item)
 
-    nav_html = ""
+    nav_food_html = ""
+    nav_bar_html = ""
     sections_food_html = ""
     sections_bar_html = ""
+    
     flat_items_for_js = []
     global_idx = 0
 
     for cat_name, cat_items in categories.items():
-        # Определяем вкладку по первому товару в категории
+        # Определяем принадлежность к ряду (Кухня или Бар)
         raw_tab = cat_items[0].get('tab', 'Кухня').strip().lower()
         is_bar = (raw_tab == 'бар')
         
         cat_id = f"cat-{hash(cat_name)}"
-        tab_key = "bar" if is_bar else "food"
         
-        # Скрываем категории бара при первой загрузке
-        display_style = 'style="display: none;"' if is_bar else 'style="display: inline-block;"'
+        # Формируем кнопку навигации
+        nav_item_html = f'<a href="#{cat_id}" class="nav-item">{cat_name}</a>'
         
-        nav_html += f'<a href="#{cat_id}" class="nav-item" data-tab="{tab_key}" {display_style}>{cat_name}</a>'
-        
+        # Формируем секцию с карточками
         section_html = f'<h2 id="{cat_id}" class="category-title">{cat_name}</h2>\n<div class="menu-grid">'
         for item in cat_items:
             price_val = item.get('price')
@@ -55,19 +55,26 @@ def build():
             global_idx += 1
         section_html += '</div>\n'
         
+        # Распределяем по рядам
         if is_bar:
+            nav_bar_html += nav_item_html
             sections_bar_html += section_html
         else:
+            nav_food_html += nav_item_html
             sections_food_html += section_html
 
+    # Читаем шаблон
     with open('template.html', 'r', encoding='utf-8') as f:
         template = f.read()
 
-    final_html = template.replace('{nav_items}', nav_html)
+    # Заменяем плейсхолдеры
+    final_html = template.replace('{nav_food_items}', nav_food_html)
+    final_html = final_html.replace('{nav_bar_items}', nav_bar_html)
     final_html = final_html.replace('{sections_food}', sections_food_html)
     final_html = final_html.replace('{sections_bar}', sections_bar_html)
     final_html = final_html.replace('{items_json}', json.dumps(flat_items_for_js, ensure_ascii=False))
 
+    # Сохраняем результат
     with open('index.html', 'w', encoding='utf-8') as f:
         f.write(final_html)
 
