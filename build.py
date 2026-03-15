@@ -10,7 +10,7 @@ def build():
     reader = csv.DictReader(response.text.splitlines())
     items = list(reader)
 
-    # Группируем блюда по категориям
+    # Группируем по категориям
     categories = {}
     for item in items:
         cat = item.get('category', 'Разное')
@@ -25,26 +25,22 @@ def build():
     global_idx = 0
 
     for cat_name, cat_items in categories.items():
-        # Определяем, к какой вкладке относится категория (берем из первого товара в категории)
-        first_item_tab = cat_items[0].get('tab', 'Кухня').strip().lower()
-        is_bar = (first_item_tab == 'бар')
+        # Определяем вкладку по первому товару в категории
+        raw_tab = cat_items[0].get('tab', 'Кухня').strip().lower()
+        is_bar = (raw_tab == 'бар')
         
         cat_id = f"cat-{hash(cat_name)}"
         tab_key = "bar" if is_bar else "food"
         
-        # Скрываем кнопки бара по умолчанию через style
+        # Скрываем категории бара при первой загрузке
         display_style = 'style="display: none;"' if is_bar else 'style="display: inline-block;"'
         
-        # Кнопка навигации
         nav_html += f'<a href="#{cat_id}" class="nav-item" data-tab="{tab_key}" {display_style}>{cat_name}</a>'
         
-        # Генерация карточек
         section_html = f'<h2 id="{cat_id}" class="category-title">{cat_name}</h2>\n<div class="menu-grid">'
         for item in cat_items:
-            # Проверяем наличие цены. Если цена есть, формируем строку с символом ₽
             price_val = item.get('price')
             price_html = f'<div class="product-price">{price_val} ₽</div>' if price_val else ''
-            # Проверяем наличие картинки для src. если пусто, атрибут src будет пустым, а CSS его скроет
             img_src = item.get('img', '')
             
             section_html += f'''
