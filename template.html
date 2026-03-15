@@ -16,7 +16,7 @@
             --radius: 18px; 
             --inactive: #8c7f70;
         }
-        html { scroll-behavior: smooth; }
+        /* html { scroll-behavior: smooth; } */
         body { font-family: -apple-system, system-ui, sans-serif; margin: 0; background: var(--bg); color: var(--text); }
         
         header { 
@@ -230,26 +230,39 @@
                 return; // Прерываем выполнение, так как переключать ничего не нужно
             }
         
-            // Если это новый таб — выполняем логику переключения
+            // Если нажали на неактивный таб — мгновенно наверх
             document.querySelectorAll('.main-tab').forEach(btn => btn.classList.remove('active'));
             clickedBtn.classList.add('active');
         
-            // Показываем нужные ссылки в скроллере и скрываем ненужные
+            // Переключаем видимость категорий в навигации
             document.querySelectorAll('.nav-item').forEach(item => {
-                item.style.display = item.getAttribute('data-tab') === tabName ? 'inline-block' : 'none';
+                if(item.getAttribute('data-tab') === tabName) {
+                    item.style.display = 'inline-block';
+                } else {
+                    item.style.display = 'none';
+                }
             });
         
-            // Сбрасываем скролл горизонтального меню в начало
-            document.getElementById('nav-scroller').scrollLeft = 0;
+            // Сбрасываем горизонтальный скролл навигации
+            const scroller = document.getElementById('nav-scroller');
+            if (scroller) scroller.scrollLeft = 0;
         
-            // Показываем нужный контент исходя из активного таба
-            document.getElementById('content-food').style.display = tabName === 'food' ? 'block' : 'none';
-            document.getElementById('content-bar').style.display = tabName === 'bar' ? 'block' : 'none';
+            // Переключаем контейнеры контента
+            const foodCont = document.getElementById('content-food');
+            const barCont = document.getElementById('content-bar');
+            
+            if (foodCont && barCont) {
+                foodCont.style.display = tabName === 'food' ? 'block' : 'none';
+                barCont.style.display = tabName === 'bar' ? 'block' : 'none';
+            }
         
             // Мгновенный переход наверх при смене таба
-            window.scrollTo({ top: 0, behavior: 'auto' });
+            window.scrollTo({
+                top: 0,
+                behavior: 'auto'
+            });
         
-            // Обновляем расчеты для активной категории
+            // Пересчитываем координаты заголовков для подсветки навигации
             setTimeout(() => {
                 updateOffsets();
                 highlightNav();
