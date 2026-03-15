@@ -47,7 +47,7 @@
             justify-content: center;
             gap: 10px;
             margin: 0 auto;
-            padding: 5px 0;
+            padding: 5px 0 0;
             max-width: 320px;
         }
         .main-tab {
@@ -80,7 +80,7 @@
         .nav-scroller {
             display: flex;
             overflow-x: auto;
-            padding: 0 10px 12px;
+            padding: 5px 10px 12px;
             gap: 10px;
             scrollbar-width: none;
             max-width: 1000px;
@@ -258,7 +258,7 @@
             const activeContainer = document.querySelector('#content-food[style*="block"], #content-bar[style*="block"]');
             if(!activeContainer) return;
             categoryOffsets = Array.from(activeContainer.querySelectorAll('.category-title')).map(el => ({
-                id: el.id, top: el.offsetTop - 150 // отступ для навигации
+                id: el.id, top: el.offsetTop - 190 // отступ для навигации
             }));
         }
 
