@@ -106,7 +106,7 @@
             background: var(--accent);
         }
 
-        .category-title { padding: 20px 15px 10px 0; margin: 0; font-size: 22px; color: var(--text); scroll-margin-top: 50px;}
+        .category-title { padding: 20px 15px 10px 0; margin: 0; font-size: 22px; color: var(--text); scroll-margin-top: 100px;}
         
         .container { padding: 12px; max-width: 1000px; margin: 0 auto; }
         .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 30px; }
@@ -263,7 +263,7 @@
             const activeContainer = document.querySelector('#content-food[style*="block"], #content-bar[style*="block"]');
             if(!activeContainer) return;
             categoryOffsets = Array.from(activeContainer.querySelectorAll('.category-title')).map(el => ({
-                id: el.id, top: el.offsetTop - 250 // отступ для навигации
+                id: el.id, top: el.offsetTop - 160 // отступ для навигации
             }));
         }
 
