@@ -165,7 +165,7 @@
         }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
-        .modal-body img { width: 100%; border-radius: 16px; margin-bottom: 15px;}
+        .modal-body img { width: 100%; border-radius: 16px; margin-bottom: 15px; display: block;}
         .weight-badge { color: #8c7f70; font-size: 14px; margin: 5px 0 12px;}
         
         .close-btn { 
@@ -325,11 +325,13 @@
             highlightNav();
         });
         function openModal(index) {
-            const item = menuItems[index]; // Массив, который наполняем
+            const item = menuItems[index]; // Массив, который будем наполнять
             const modalBody = document.getElementById('modal-body');
-
-            // Проверки наличия значений полей
-            const imgHTML = item.img ? `<img src="${item.img}">` : '';
+        
+            // используем локальный путь к полноразмерному фото
+            const fullImgSrc = item.img_full || 'assets/img/placeholder.webp';
+            
+            const imgHTML = `<img src="${fullImgSrc}" alt="${item.name}">`;
             const weightHTML = item.weight ? `<div class="weight-badge">${item.weight}</div>` : '';
             const priceHTML = item.price ? 
                 `<p style="color:var(--primary); font-size:22px; font-weight:800; margin: 10px 0;">${item.price} ₽</p>` : '';
