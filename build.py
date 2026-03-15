@@ -52,27 +52,24 @@ def build():
             price_val = item.get('price')
             price_html = f'<div class="product-price">{price_val} ₽</div>' if price_val else ''
             
-            # --- ЛОГИКА ПУТЕЙ К ИЗОБРАЖЕНИЯМ ---
-            img_url = item.get('img', '')
+            img_url = item.get('img', '').strip()
             img_id = get_drive_id(img_url)
             
             # Локальные пути, которые создал process_images.py
-            if img_id:
-                # Ссылаемся на файлы, которые подготовил process_images.py
-                thumb_src = f"assets/img/thumbs/{img_id}.webp"
-                full_src = f"assets/img/full/{img_id}.webp"
+            if not img_id:
+                thumb_src = None
+                item['img_full'] = None
+                img_tag = "" # При пустой ячейке таблицы картинки не будет в HTML
+                card_class = "product-card no-image"
             else:
-                # Заглушка, если ссылки нет
-                thumb_src = "assets/img/placeholder.webp"
-                full_src = "assets/img/placeholder.webp"
+                thumb_src = f"assets/img/thumbs/{img_id}.webp"
+                item['img_full'] = f"assets/img/full/{img_id}.webp"
+                img_tag = f'<img src="{thumb_src}" class="product-img" loading="lazy">'
+                card_class = "product-card"
 
-            # Сохраняем локальные пути в объект для модального окна в JS
-            item['img_thumb'] = thumb_src
-            item['img_full'] = full_src
-            
             section_html += f'''
-            <div class="product-card" onclick="openModal({global_idx})">
-                <img src="{thumb_src}" class="product-img" loading="lazy" alt="{item['name']}">
+            <div class="{card_class}" onclick="openModal({global_idx})">
+                {img_tag}
                 <div class="product-info">
                     <div class="product-title">{item['name']}</div>
                     {price_html}
