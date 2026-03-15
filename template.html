@@ -42,40 +42,6 @@
             /* padding-top: 15px; */
         }
 
-        .main-tabs {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin: 0 auto;
-            padding: 5px 0 0;
-            max-width: 320px;
-        }
-        .main-tab {
-            position: relative;
-            padding: 8px 13px;
-            border: none;
-            background: transparent;
-            font-weight: 600;
-            font-size: 16px;
-            color: var(--inactive);
-            cursor: pointer;
-            transition: color 0.3s ease;
-        }
-        .main-tab.active {
-            color: var(--primary);
-            background: transparent;
-            box-shadow: none;
-        }
-        /* .main-tab.active::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background-color: var(--primary);
-            border-radius: 2px;
-        } */
         .nav-container {
             display: flex;
             flex-direction: column;
@@ -252,41 +218,6 @@
     <script>
         const menuItems = {items_json};  // Массив, который заполняем
 
-        function switchTab(tabName, clickedBtn) {
-            // Проверяем, нажат ли уже активный таб
-            const isAlreadyActive = clickedBtn.classList.contains('active');
-        
-            if (isAlreadyActive) {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                return; // Прерываем выполнение, так как переключать ничего не нужно
-            }
-        
-            // Если это новый таб — выполняем логику переключения
-            document.querySelectorAll('.main-tab').forEach(btn => btn.classList.remove('active'));
-            clickedBtn.classList.add('active');
-        
-            // Показываем нужные ссылки в скроллере и скрываем ненужные
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.style.display = item.getAttribute('data-tab') === tabName ? 'inline-block' : 'none';
-            });
-        
-            // Сбрасываем скролл горизонтального меню в начало
-            document.getElementById('nav-scroller').scrollLeft = 0;
-        
-            // Показываем нужный контент исходя из активного таба
-            document.getElementById('content-food').style.display = tabName === 'food' ? 'block' : 'none';
-            document.getElementById('content-bar').style.display = tabName === 'bar' ? 'block' : 'none';
-        
-            // переход наверх при смене таба
-            window.scrollTo({ top: 0, behavior: 'auto' });
-        
-            // Обновляем расчеты для активной категории
-            setTimeout(() => {
-                updateOffsets();
-                highlightNav();
-            }, 50);
-        }
-        
         let categoryOffsets = [];
 
         // Функция для расчета позиций категорий (вызываем при загрузке и ресайзе)
