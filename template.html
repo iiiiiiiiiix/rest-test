@@ -225,7 +225,6 @@
             const isAlreadyActive = clickedBtn.classList.contains('active');
         
             if (isAlreadyActive) {
-                // Если таб уже активен — плавно скроллим наверх
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 return; // Прерываем выполнение, так как переключать ничего не нужно
             }
@@ -246,7 +245,7 @@
             document.getElementById('content-food').style.display = tabName === 'food' ? 'block' : 'none';
             document.getElementById('content-bar').style.display = tabName === 'bar' ? 'block' : 'none';
         
-            // Мгновенный переход наверх при смене таба
+            // переход наверх при смене таба
             window.scrollTo({ top: 0, behavior: 'auto' });
         
             // Обновляем расчеты для активной категории
