@@ -1,9 +1,10 @@
 import requests
 import csv
 import os
-from weasyprint import HTML
+from weasyprint import HTML, CSS
 
 SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVezxfe40Q-78IQvERF0u42mMOqAMNAmJ-aHJN4Zx9_S99ud7GYZMaENCQBb_hvujpYjb3sT8aITCM/pub?output=csv"
+LOGO_URL = "https://raw.githubusercontent.com/iiiiiiiiiix/rest-test/main/assets/logo.svg"
 
 def build_pdf():
     try:
@@ -11,24 +12,22 @@ def build_pdf():
         response.encoding = 'utf-8'
         reader = csv.DictReader(response.text.splitlines())
         items = list(reader)
+
+        logo_response = requests.get(LOGO_URL, timeout=15)
+        logo_content = logo_response.content if logo_response.status_code == 200 else None
     except Exception as e:
-        print(f"Ошибка при загрузке таблицы для PDF: {e}")
+        print(f"Ошибка при загрузке данных: {e}")
         return
 
-    # Группируем по вкладкам и категориям
     tabs = {'Кухня': {}, 'Бар': {}}
     for item in items:
         tab_name = item.get('tab', 'Кухня').strip()
         cat = item.get('category', 'Разное')
-        
-        # Нормализуем название вкладки
         target_tab = 'Бар' if tab_name.lower() == 'бар' else 'Кухня'
-        
         if cat not in tabs[target_tab]:
             tabs[target_tab][cat] = []
         tabs[target_tab][cat].append(item)
 
-    # Генерируем HTML для PDF
     html_content = f"""
     <!DOCTYPE html>
     <html lang="ru">
@@ -37,125 +36,169 @@ def build_pdf():
         <style>
             @page {{
                 size: A4;
-                margin: 20mm 15mm;
-                @bottom-center {{
-                    content: counter(page);
-                    font-size: 10pt;
-                    color: #8c7f70;
-                }}
+                margin: 12mm;
+                background-color: #F5E6D3;
             }}
+            
             body {{
-                font-family: sans-serif;
-                color: #4a3f35;
-                background: #faf7f2;
+                font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+                color: #1E1E1E;
+                margin: 0;
+                padding: 0;
             }}
+
+            .header-block {{
+                column-span: all;
+                text-align: center;
+                margin-bottom: 12mm;
+            }}
+
             h1 {{
                 text-align: center;
-                color: #d66a40;
-                font-size: 28pt;
-                margin-bottom: 5mm;
+                font-size: 24pt;
                 text-transform: uppercase;
+                letter-spacing: 3px;
+                margin-top: 5mm;
+                margin-bottom: 10mm;
+                color: #1E1E1E;
+                column-span: all;
             }}
-            .tab-title {{
-                text-align: center;
-                font-size: 20pt;
-                background: #e0dacf;
-                padding: 10px;
-                border-radius: 8px;
-                margin: 15mm 0 10mm 0;
-                page-break-after: avoid;
+
+            .menu-columns {{
+                column-count: 2;
+                column-gap: 12mm;
+                column-fill: balance;
             }}
+
+            .category-block {{
+                display: block;
+                break-inside: auto;
+                margin-bottom: 12mm;
+            }}
+
             .category-title {{
-                font-size: 16pt;
-                color: #d66a40;
-                border-bottom: 2px solid #d66a40;
-                padding-bottom: 5px;
-                margin-top: 10mm;
-                margin-bottom: 5mm;
-                page-break-after: avoid;
+                text-align: center;
+                font-size: 15pt;
+                text-transform: uppercase;
+                margin: 0 0 6mm 0;
+                font-weight: normal;
+                border-bottom: 1px solid rgba(0,0,0,0.1);
+                padding-bottom: 2mm;
+                break-after: avoid; /* Запрещаем заголовку категории отрываться от первого блюда */
             }}
+
             .item {{
-                margin-bottom: 6mm;
-                page-break-inside: avoid;
-            }}
-            .item-header {{
                 display: flex;
-                align-items: baseline;
-                width: 100%;
+                break-inside: avoid; /* Полный запрет разрыва внутри блюда */
+                margin-bottom: 3mm;
+                justify-content: space-between;
+                align-items: baseline; /* Название и цена на одном уровне (по базовой линии) */
             }}
+
+            .item-content {{
+                flex: 1;
+                padding-right: 4mm;
+            }}
+
             .item-name {{
                 font-weight: bold;
-                font-size: 12pt;
+                font-size: 11pt;
+                line-height: 1.15;
+                display: block;
             }}
-            .item-dots {{
-                flex-grow: 1;
-                border-bottom: 1px dotted #8c7f70;
-                margin: 0 8px;
-            }}
-            .item-price {{
-                font-weight: bold;
-                font-size: 12pt;
-                white-space: nowrap;
-            }}
+
             .item-meta {{
-                font-size: 10pt;
-                color: #666;
-                margin-top: 3px;
-                line-height: 1.3;
+                font-size: 8.5pt;
+                color: #4a3e35;
+                line-height: 1.15;
+                opacity: 0.85;
+                display: block;
+                margin-top: 2px;
             }}
-            .weight-badge {{
-                display: inline-block;
-                background: #eee8de;
-                padding: 2px 6px;
-                border-radius: 4px;
+
+            .item-price-block {{
+                display: flex;
+                align-items: baseline;
+                white-space: nowrap;
+                font-weight: bold;
+                flex-shrink: 0;
+            }}
+
+            .item-weight {{
                 font-size: 9pt;
-                margin-right: 8px;
-                color: #4a3f35;
+                color: #4a3e35;
+                font-weight: normal;
+            }}
+
+            .price-divider {{
+                font-size: 11pt;
+                margin: 0 2px;
+                color: #1E1E1E;
+            }}
+
+            .item-price {{
+                font-size: 11pt;
             }}
         </style>
     </head>
     <body>
-        <h1>Меню</h1>
+    <div class="header-block">{logo_content.decode("utf-8") if logo_content else ""}</div>
     """
 
     for tab_name, categories in tabs.items():
         if not categories: continue
         
-        # Добавляем разрыв страницы перед Баром, если Кухня уже вывелась
-        style = 'style="page-break-before: always;"' if tab_name == 'Бар' else ''
-        html_content += f'<div class="tab-title" {style}>{tab_name}</div>'
-
+        # Начинаем Бар с новой страницы
+        page_break = 'style="page-break-before: always;"' if tab_name == 'Бар' else ''
+        
+        html_content += f'<div {page_break}>'
+        tab_title = '' if tab_name.lower() == 'кухня' else f'<h1>{tab_name}</h1>'
+        html_content += tab_title
+        html_content += '<div class="menu-columns">'
+        
         for cat_name, cat_items in categories.items():
-            html_content += f'<h2 class="category-title">{cat_name}</h2>'
+            # Оборачиваем каждую категорию в блок .category-block
+            html_content += f'<div class="category-block"><h2 class="category-title">{cat_name}</h2>'
             
             for item in cat_items:
                 name = item.get('name', '')
-                price = item.get('price', '')
+                price = item.get('price', '').strip()
                 desc = item.get('desc', '').strip()
                 weight = item.get('weight', '').strip()
 
-                weight_html = f'<span class="weight-badge">{weight}</span>' if weight else ''
-                desc_html = f'<span>{desc}</span>' if desc else ''
+                price_block = ""
+                if weight and price:
+                    price_block = f'<span class="item-weight">{weight}</span><span class="price-divider">/</span><span class="item-price">{price} ₽</span>'
+                elif price:
+                    price_block = f'<span class="item-price">{price} ₽</span>'
+                elif weight:
+                    price_block = f'<span class="item-weight">{weight}</span>'
                 
                 html_content += f"""
                 <div class="item">
-                    <div class="item-header">
+                    <div class="item-content">
                         <span class="item-name">{name}</span>
-                        <span class="item-dots"></span>
-                        <span class="item-price">{price} ₽</span>
+                        {f'<span class="item-meta">{desc}</span>' if desc else ''}
                     </div>
-                    <div class="item-meta">
-                        {weight_html} {desc_html}
-                    </div>
+                    <div class="item-price-block">{price_block}</div>
                 </div>
                 """
+            html_content += '</div>' # Закрываем .category-block
+
+        html_content += '</div></div>'
 
     html_content += "</body></html>"
 
-    # Рендерим PDF. base_url нужен, если вы захотите добавить картинки по относительным путям.
+    # Сохранить в html виде для дебага в браузере
+    # with open('menu_debug.html', 'w', encoding='utf-8') as f:
+    #     f.write(html_content)
+
     print("Генерация PDF...")
-    HTML(string=html_content, base_url=os.path.dirname(os.path.abspath(__file__))).write_pdf('menu.pdf')
-    print("PDF успешно сгенерирован: menu.pdf")
+    HTML(string=html_content, base_url=os.path.dirname(os.path.abspath(__file__))).write_pdf(
+        'menu_v8.pdf', 
+        stylesheets=[CSS(string='svg { width: 140px; height: auto; margin: 0 auto; display: block; }')]
+    )
+    print("Готово! Файл: menu_v8.pdf")
 
 if __name__ == "__main__":
     build_pdf()
