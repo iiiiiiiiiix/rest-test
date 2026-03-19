@@ -189,8 +189,9 @@ def build_pdf():
 
     html_content += "</body></html>"
 
-    with open('menu_debug.html', 'w', encoding='utf-8') as f:
-        f.write(html_content)
+    # Сохранить в html виде для дебага в браузере
+    # with open('menu_debug.html', 'w', encoding='utf-8') as f:
+    #     f.write(html_content)
 
     print("Генерация PDF...")
     HTML(string=html_content, base_url=os.path.dirname(os.path.abspath(__file__))).write_pdf(
