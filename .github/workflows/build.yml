@@ -20,13 +20,19 @@ jobs:
           # нужно, чтобы иметь полную историю для пуша
           fetch-depth: 0
 
+      # ДОБАВЛЕНО: Устанавливаем системные зависимости для WeasyPrint
+      - name: Install system dependencies for WeasyPrint
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libpango-1.0-0 libharfbuzz0b libpangoft2-1.0-0
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
       - name: Install dependencies
         run: |
-          pip install requests Pillow
+          pip install requests Pillow weasyprint
 
       - name: Create asset directories
         run: |
@@ -38,6 +44,10 @@ jobs:
 
       - name: Build site (Generate HTML)
         run: python build.py
+
+      # Генерируем PDF
+      - name: Build PDF menu
+        run: python build_pdf.py
 
       - name: Commit and Push optimized images
         run: |
