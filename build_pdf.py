@@ -195,10 +195,10 @@ def build_pdf():
 
     print("Генерация PDF...")
     HTML(string=html_content, base_url=os.path.dirname(os.path.abspath(__file__))).write_pdf(
-        'menu_v8.pdf', 
+        'menu_text.pdf', 
         stylesheets=[CSS(string='svg { width: 140px; height: auto; margin: 0 auto; display: block; }')]
     )
-    print("Готово! Файл: menu_v8.pdf")
+    print("PDF сгенерирован!")
 
 if __name__ == "__main__":
     build_pdf()
