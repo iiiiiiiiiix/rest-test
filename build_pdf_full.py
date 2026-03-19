@@ -1,87 +1,117 @@
 import requests
 import csv
 import os
+from fpdf import FPDF
 
 SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVezxfe40Q-78IQvERF0u42mMOqAMNAmJ-aHJN4Zx9_S99ud7GYZMaENCQBb_hvujpYjb3sT8aITCM/pub?output=csv"
 
+class MenuPDF(FPDF):
+    def header(self):
+        # Оранжевая плашка сверху для стиля
+        self.set_fill_color(214, 106, 64)
+        self.rect(0, 0, 210, 10, 'F')
+        self.ln(10)
+
+    def footer(self):
+        self.set_y(-15)
+        self.set_font("helvetica", "I", 8)
+        self.set_text_color(150)
+        self.cell(0, 10, f"Page {self.page_no()}", align="C")
+
 def get_drive_id(url):
     if not url: return None
-    return url.split('/d/')[1].split('/')[0] if '/d/' in url else (url.split('id=')[1].split('&')[0] if 'id=' in url else None)
+    if '/d/' in url: return url.split('/d/')[1].split('/')[0]
+    if 'id=' in url: return url.split('id=')[1].split('&')[0]
+    return None
 
-def build_pdf_html():
+def build_pdf():
     try:
-        response = requests.get(SHEET_CSV_URL, timeout=30)
-        response.encoding = 'utf-8'
-        items = list(csv.DictReader(response.text.splitlines()))
+        res = requests.get(SHEET_CSV_URL)
+        res.encoding = 'utf-8'
+        items = list(csv.DictReader(res.text.splitlines()))
     except Exception as e:
-        print(f"Error: {e}"); return
+        print(f"Error fetching data: {e}"); return
 
-    # Стили для PDF (A4, Print-friendly)
-    style = """
-    <style>
-        :root { --primary: #d66a40; --bg: #ffffff; --text: #4a3f35; --accent: #8c7f70; }
-        body { font-family: -apple-system, sans-serif; margin: 0; padding: 20px; color: var(--text); background: #white; }
-        .header { text-align: center; margin-bottom: 30px; }
-        .header img { width: 150px; }
-        .tab-title { font-size: 28px; border-bottom: 2px solid var(--primary); margin: 40px 0 20px; padding-bottom: 10px; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; }
-        .category-title { font-size: 20px; margin: 25px 0 15px; color: var(--text); font-weight: bold; }
-        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .product-card { display: flex; gap: 12px; break-inside: avoid; border-bottom: 1px solid #eee; padding-bottom: 10px; min-height: 100px; }
-        .product-img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; flex-shrink: 0; }
-        .product-info { flex-grow: 1; }
-        .product-header { display: flex; justify-content: space-between; align-items: flex-start; }
-        .product-title { font-weight: 700; font-size: 14px; margin-right: 10px; }
-        .product-price { font-weight: 800; color: var(--primary); white-space: nowrap; }
-        .product-weight { font-size: 11px; color: var(--accent); margin-top: 2px; }
-        .product-desc { font-size: 11px; line-height: 1.3; margin-top: 5px; opacity: 0.8; }
-        @media print { .tab-title { break-before: page; } .tab-title:first-of-type { break-before: auto; } }
-    </style>
-    """
+    pdf = MenuPDF()
+    pdf.set_auto_page_break(auto=True, margin=20)
+    pdf.add_page()
+    
+    # Регистрация стандартного шрифта (или системного)
+    pdf.set_font("helvetica", size=12)
 
-    content_html = f'<html><head><meta charset="UTF-8">{style}</head><body>'
-    content_html += '<div class="header"><img src="https://xmgnuvljkvpmksevkwyx.supabase.co/storage/v1/object/public/menu-images/newlogs.svg"></div>'
-
-    # Группировка по Табам (Кухня/Бар), а внутри по Категориям
-    tabs = {"Кухня": {}, "Бар": {}}
+    sections = {"Кухня": {}, "Бар": {}}
     for item in items:
         t = item.get('tab', 'Кухня').strip()
         c = item.get('category', 'Разное')
-        if t not in tabs: tabs[t] = {}
-        if c not in tabs[t]: tabs[t][c] = []
-        tabs[t][c].append(item)
+        if t not in sections: sections[t] = {}
+        if c not in sections[t]: sections[t][c] = []
+        sections[t][c].append(item)
 
-    for tab_name, categories in tabs.items():
-        content_html += f'<h1 class="tab-title">{tab_name}</h1>'
+    for tab_name, categories in sections.items():
+        # Большой заголовок раздела
+        pdf.ln(5)
+        pdf.set_font("helvetica", "B", 24)
+        pdf.set_text_color(214, 106, 64)
+        pdf.cell(0, 20, tab_name.upper(), ln=True, align="L")
+        
         for cat_name, cat_items in categories.items():
-            content_html += f'<h2 class="category-title">{cat_name}</h2><div class="menu-grid">'
+            # Заголовок категории
+            pdf.set_font("helvetica", "B", 16)
+            pdf.set_text_color(74, 63, 53)
+            pdf.cell(0, 12, cat_name, ln=True)
+            pdf.set_draw_color(224, 218, 207) # --accent
+            pdf.line(pdf.get_x(), pdf.get_y(), pdf.get_x() + 190, pdf.get_y())
+            pdf.ln(5)
+
             for item in cat_items:
+                # Начало блока товара
+                start_y = pdf.get_y()
+                
+                # Проверка на наличие картинки
                 img_id = get_drive_id(item.get('img', ''))
                 img_path = f"assets/img/thumbs/{img_id}.webp"
-                img_tag = f'<img src="{img_path}" class="product-img">' if img_id and os.path.exists(img_path) else '<div style="width:80px"></div>'
                 
-                desc = item.get('desc', '').strip()
-                desc_html = f'<div class="product-desc">{desc}</div>' if desc else ''
-                weight = item.get('weight', '').strip()
-                weight_html = f'<div class="product-weight">{weight}</div>' if weight else ''
+                text_offset = 10
+                if img_id and os.path.exists(img_path):
+                    # Рисуем картинку (30x30 мм)
+                    try:
+                        pdf.image(img_path, x=10, y=start_y, w=25, h=25)
+                        text_offset = 40 # Сдвигаем текст, если есть фото
+                    except:
+                        text_offset = 10
 
-                content_html += f'''
-                <div class="product-card">
-                    {img_tag}
-                    <div class="product-info">
-                        <div class="product-header">
-                            <span class="product-title">{item["name"]}</span>
-                            <span class="product-price">{item["price"]} ₽</span>
-                        </div>
-                        {weight_html}
-                        {desc_html}
-                    </div>
-                </div>'''
-            content_html += '</div>'
-    
-    content_html += '</body></html>'
-    
-    with open('menu_pdf_preview.html', 'w', encoding='utf-8') as f:
-        f.write(content_html)
+                # Название и цена
+                pdf.set_xy(text_offset, start_y)
+                pdf.set_font("helvetica", "B", 11)
+                pdf.set_text_color(74, 63, 53)
+                
+                # Короткое название, чтобы цена не налезла
+                pdf.cell(120, 6, item['name'])
+                
+                pdf.set_font("helvetica", "B", 12)
+                pdf.set_text_color(214, 106, 64)
+                pdf.cell(0, 6, f"{item['price']} p.", ln=True, align="R")
+
+                # Вес и Описание
+                pdf.set_x(text_offset)
+                pdf.set_font("helvetica", "", 9)
+                pdf.set_text_color(140, 127, 112)
+                
+                info_text = f"({item['weight']}) " if item.get('weight') else ""
+                if item.get('desc'):
+                    info_text += item['desc']
+                
+                if info_text:
+                    pdf.multi_cell(0, 5, info_text)
+                
+                # Отступ после товара (минимум высота картинки)
+                curr_y = pdf.get_y()
+                next_y = max(curr_y, start_y + 28)
+                pdf.set_y(next_y)
+                pdf.ln(4)
+
+    pdf.output("menu.pdf")
+    print("PDF with images generated!")
 
 if __name__ == "__main__":
-    build_pdf_html()
+    build_pdf()
