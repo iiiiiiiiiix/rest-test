@@ -32,7 +32,9 @@ jobs:
           python-version: '3.10'
       - name: Install dependencies
         run: |
-          pip install requests Pillow weasyprint
+          pip install requests Pillow weasyprint pyppeteer
+      - name: Install Browser for PDF
+        run: pyppeteer-install
 
       - name: Create asset directories
         run: |
@@ -45,21 +47,25 @@ jobs:
       - name: Build site (Generate HTML)
         run: python build.py
 
-      # Генерируем PDF
-      - name: Build PDF menu
+      - name: Build PDF text menu
         run: python build_pdf.py
 
+      - name: Build PDF full menu
+        run: python build_pdf_full.py
+      - name: Generate Final PDF
+        run: python generate_pdf_full.py
+        
       - name: Commit and Push optimized images
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           # Добавляем только новые или измененные изображения
-          git add assets/img/
+          git add assets/img/ menu_full.pdf index.html
           # Проверяем, есть ли что коммитить, чтобы билд не падал с ошибкой
           if git diff --quiet && git diff --staged --quiet; then
             echo "No changes to images"
           else
-            git commit -m "Auto-optimize and cache new images [skip ci]"
+            git commit -m "Auto-optimize and cache new images and menu_full.pdf [skip ci]"
             git push origin main
           fi
 
