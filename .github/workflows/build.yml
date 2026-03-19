@@ -32,9 +32,7 @@ jobs:
           python-version: '3.10'
       - name: Install dependencies
         run: |
-          pip install requests Pillow weasyprint pyppeteer
-      - name: Install Browser for PDF
-        run: pyppeteer-install
+          pip install requests Pillow weasyprint fpdf2
 
       - name: Create asset directories
         run: |
@@ -47,13 +45,11 @@ jobs:
       - name: Build site (Generate HTML)
         run: python build.py
 
-      - name: Build PDF text menu
+      - name: Build PDF TEXT menu
         run: python build_pdf.py
 
       - name: Build PDF full menu
         run: python build_pdf_full.py
-      - name: Generate Final PDF
-        run: python generate_pdf_full.py
         
       - name: Commit and Push optimized images
         run: |
