@@ -110,7 +110,7 @@ def build_pdf():
                 pdf.set_y(next_y)
                 pdf.ln(4)
 
-    pdf.output("menu.pdf")
+    pdf.output("menu_full.pdf")
     print("PDF with images generated!")
 
 if __name__ == "__main__":
