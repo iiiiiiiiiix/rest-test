@@ -20,7 +20,6 @@ jobs:
           # нужно, чтобы иметь полную историю для пуша
           fetch-depth: 0
 
-      # ДОБАВЛЕНО: Устанавливаем системные зависимости для WeasyPrint
       - name: Install system dependencies for WeasyPrint
         run: |
           sudo apt-get update
@@ -56,12 +55,12 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           # Добавляем только новые или измененные изображения
-          git add assets/img/ menu_full.pdf index.html
+          git add assets/img/
           # Проверяем, есть ли что коммитить, чтобы билд не падал с ошибкой
           if git diff --quiet && git diff --staged --quiet; then
             echo "No changes to images"
           else
-            git commit -m "Auto-optimize and cache new images and menu_full.pdf [skip ci]"
+            git commit -m "Auto-optimize and cache new images [skip ci]"
             git push origin main
           fi
 
@@ -69,5 +68,5 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./
+          publish_dir: ./  # Отправит всё содержимое корня (вкл. новые index.html и pdf) в ветку gh-pages
           publish_branch: gh-pages
