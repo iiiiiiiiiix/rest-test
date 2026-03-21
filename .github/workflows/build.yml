@@ -47,8 +47,8 @@ jobs:
       - name: Build PDF TEXT menu
         run: python build_pdf.py
 
-      - name: Build PDF full menu
-        run: python build_pdf_full.py
+      # - name: Build PDF full menu
+      #   run: python build_pdf_full.py
         
       - name: Commit and Push optimized images
         run: |
