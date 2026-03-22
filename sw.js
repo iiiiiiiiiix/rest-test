@@ -3,7 +3,10 @@ const CACHE_NAME = 'modnyi-v1'; // Менять версию при глобал
 // 1. Файлы, которые нужны для работы оболочки (Shell)
 const STATIC_ASSETS = [
   './',
-  './manifest.json'
+  './manifest.json',
+  './assets/logo.svg',
+  './assets/icon-192x192.png',
+  './assets/icon-512x512.png'
 ];
 
 // Установка: кэшируем статику
