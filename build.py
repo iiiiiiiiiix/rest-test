@@ -63,17 +63,11 @@ def build():
                 t_path = f"assets/img/thumbs/{img_id}.webp"
                 f_path = f"assets/img/full/{img_id}.webp"
                 
-                # Если скрипт обработки еще не скачал их, временно не показываем
-                if os.path.exists(t_path):
-                    item['img_thumb'] = t_path
-                    item['img_full'] = f_path
-                    img_tag = f'<img src="{t_path}" class="product-img" loading="lazy" alt="{item["name"]}">'
-                    card_class = "product-card"
-                else:
-                    item['img_thumb'] = None
-                    item['img_full'] = None
-                    img_tag = ""
-                    card_class = "product-card no-image"
+                item['img_thumb'] = t_path
+                item['img_full'] = f_path
+
+                img_tag = f'<img src="{t_path}" class="product-img" loading="lazy" alt="{item["name"]}">'
+                card_class = "product-card"
             else:
                 item['img_thumb'] = None
                 item['img_full'] = None

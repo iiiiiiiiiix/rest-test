@@ -387,7 +387,7 @@
             document.body.style.overflow = 'auto';
         }
 
-        
+        // Регистрация Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
               navigator.serviceWorker.register('./sw.js');
@@ -398,14 +398,15 @@
           async function prefetchMenuAssets() {
             if (!('caches' in window)) return;
             
-            const cache = await caches.open('sicilia-v2');
+            const cache = await caches.open('modnyi-v1');
             
             // Собираем все ссылки на картинки из нашего массива menuItems
             // Мы берем и основные фото, и миниатюры
             const urlsToPrefetch = [];
+            // menuItems — это {items_json}, который вставляет build.py
             menuItems.forEach(item => {
-              if (item.img) urlsToPrefetch.push(item.img);
-              if (item.thumb) urlsToPrefetch.push(item.thumb);
+              if (item.img_thumb) urlsToPrefetch.push(item.img_thumb);
+              if (item.img_full) urlsToPrefetch.push(item.img_full);
             });
         
             console.log(`Начинаю фоновое кэширование ${urlsToPrefetch.length} ресурсов...`);
@@ -419,13 +420,14 @@
                   await cache.add(url);
                 }
               } catch (e) {
-                console.warn('Не удалось закэшировать:', url);
+                // Ошибка может быть, если картинка еще не успела запушиться в GitHub Pages
+                console.warn('Не удалось закэшировать - пропуск ресурса:', url);
               }
             }
-            console.log('✅ Все меню доступно оффлайн');
+            console.log('✅ Оффлайн-база обновлена');
           }
         
-          // Запускаем через 3 секунды после полной загрузки страницы
+          // Запускаем через 3 секунды после полной загрузки страницы, чтобы не мешать отрисовке меню
           window.addEventListener('load', () => {
             setTimeout(prefetchMenuAssets, 3000);
           });
