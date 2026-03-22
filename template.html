@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#faf7f2">
+    <link rel="manifest" href="manifest.json">
     <title>Модный Lounge Bar</title>
     <style>
         :root { 
@@ -385,6 +386,49 @@
             document.getElementById('modal').style.display = 'none';
             document.body.style.overflow = 'auto';
         }
+
+        
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+              navigator.serviceWorker.register('./sw.js');
+            });
+          }
+        
+          // Функция фоновой загрузки всех ресурсов
+          async function prefetchMenuAssets() {
+            if (!('caches' in window)) return;
+            
+            const cache = await caches.open('sicilia-v2');
+            
+            // Собираем все ссылки на картинки из нашего массива menuItems
+            // Мы берем и основные фото, и миниатюры
+            const urlsToPrefetch = [];
+            menuItems.forEach(item => {
+              if (item.img) urlsToPrefetch.push(item.img);
+              if (item.thumb) urlsToPrefetch.push(item.thumb);
+            });
+        
+            console.log(`Начинаю фоновое кэширование ${urlsToPrefetch.length} ресурсов...`);
+        
+            // Кэшируем по очереди, чтобы не забивать поток
+            for (const url of urlsToPrefetch) {
+              try {
+                // Проверяем, нет ли уже этого в кэше, чтобы не качать дважды
+                const exists = await cache.match(url);
+                if (!exists) {
+                  await cache.add(url);
+                }
+              } catch (e) {
+                console.warn('Не удалось закэшировать:', url);
+              }
+            }
+            console.log('✅ Все меню доступно оффлайн');
+          }
+        
+          // Запускаем через 3 секунды после полной загрузки страницы
+          window.addEventListener('load', () => {
+            setTimeout(prefetchMenuAssets, 3000);
+          });
     </script>
 </body>
 </html>
