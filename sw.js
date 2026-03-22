@@ -4,6 +4,7 @@ const CACHE_NAME = 'modnyi-v1'; // Менять версию при глобал
 const STATIC_ASSETS = [
   './',
   './manifest.json',
+  './sw.js',
   './assets/logo.svg',
   './assets/icon-192x192.png',
   './assets/icon-512x512.png'
