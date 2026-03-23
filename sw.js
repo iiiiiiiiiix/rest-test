@@ -1,4 +1,4 @@
-const CACHE_NAME = 'modnyi-v1'; // Менять версию при глобальных правках стилей
+const CACHE_NAME = 'modnyi-v2'; // Менять версию при глобальных правках стилей
 
 // 1. Файлы, которые нужны для работы оболочки (Shell)
 const STATIC_ASSETS = [
@@ -58,10 +58,12 @@ self.addEventListener('fetch', (event) => {
         return cachedResponse; // Мгновенно отдаем из кэша
       }
       return fetch(event.request).then((networkResponse) => {
-        // Сохраняем новое изображение в кэш при первом обращении
-        const responseClone = networkResponse.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
-        return networkResponse;
+          // Сохраняем ТОЛЬКО если статус 200 (OK)
+          if (networkResponse.status === 200) {
+              const responseClone = networkResponse.clone();
+              caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
+          }
+          return networkResponse;
       });
     })
   );

@@ -394,43 +394,54 @@
             });
           }
         
-          // Функция фоновой загрузки всех ресурсов
-          async function prefetchMenuAssets() {
-            if (!('caches' in window)) return;
+        // Функция фоновой загрузки всех ресурсов
+        async function prefetchMenuAssets() {
+            if (!('caches' in window) || !navigator.onLine) return;
             
-            const cache = await caches.open('modnyi-v1');
-            
+            const cache = await caches.open('modnyi-v2');
+
             // Собираем все ссылки на картинки из нашего массива menuItems
             // Мы берем и основные фото, и миниатюры
             const urlsToPrefetch = [];
-            // menuItems — это {items_json}, который вставляет build.py
+            // menuItems — это {items_json}, который вставляет build.py    
             menuItems.forEach(item => {
-              if (item.img_thumb) urlsToPrefetch.push(item.img_thumb);
-              if (item.img_full) urlsToPrefetch.push(item.img_full);
+                if (item.img_thumb) urlsToPrefetch.push(item.img_thumb);
+                if (item.img_full) urlsToPrefetch.push(item.img_full);
             });
-        
-            console.log(`Начинаю фоновое кэширование ${urlsToPrefetch.length} ресурсов...`);
-        
-            // Кэшируем по очереди, чтобы не забивать поток
+
+            console.log(`Проверка кэша для ${urlsToPrefetch.length} ресурсов...`);
+
             for (const url of urlsToPrefetch) {
-              try {
-                // Проверяем, нет ли уже этого в кэше, чтобы не качать дважды
-                const exists = await cache.match(url);
-                if (!exists) {
-                  await cache.add(url);
+                // Если интернет пропал прямо в процессе цикла — выходим
+                if (!navigator.onLine) break;
+
+                try {
+                    // Проверяем, нет ли уже этого в кэше, чтобы не качать дважды
+                    const exists = await cache.match(url);
+                    if (!exists) {
+                        // Используем fetch с таймаутом, чтобы запрос не висел вечно в pending
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 сек на файл
+
+                        const response = await fetch(url, { signal: controller.signal });
+                        if (response.ok) {
+                            await cache.put(url, response);
+                            // console.log('Saved to cache:', url);
+                        }
+                        clearTimeout(timeoutId);
+                    }
+                } catch (e) {
+                    console.warn('Ошибка загрузки (возможно, прервано соединение):', url);
                 }
-              } catch (e) {
-                // Ошибка может быть, если картинка еще не успела запушиться в GitHub Pages
-                console.warn('Не удалось закэшировать - пропуск ресурса:', url);
-              }
             }
-            console.log('✅ Оффлайн-база обновлена');
-          }
-        
-          // Запускаем через 3 секунды после полной загрузки страницы, чтобы не мешать отрисовке меню
-          window.addEventListener('load', () => {
+        }
+
+        // Слушатель возвращения интернета
+        window.addEventListener('online', prefetchMenuAssets);
+
+        window.addEventListener('load', () => {
             setTimeout(prefetchMenuAssets, 3000);
-          });
+        });
     </script>
 </body>
 </html>
