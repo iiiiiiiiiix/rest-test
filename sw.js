@@ -64,6 +64,10 @@ self.addEventListener('fetch', (event) => {
               caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
           }
           return networkResponse;
+      })
+      .catch(() => {
+        // ПЕРЕХВАТЫВАЕМ ОШИБКУ: возвращаем пустой ответ вместо красной ошибки в консоли
+        return new Response(null, { status: 408 }); 
       });
     })
   );

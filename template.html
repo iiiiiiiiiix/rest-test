@@ -403,7 +403,7 @@
             // Собираем все ссылки на картинки из нашего массива menuItems
             // Мы берем и основные фото, и миниатюры
             const urlsToPrefetch = [];
-            // menuItems — это {items_json}, который вставляет build.py    
+            // menuItems — это {items_json}, который вставляет build.py        
             menuItems.forEach(item => {
                 if (item.img_thumb) urlsToPrefetch.push(item.img_thumb);
                 if (item.img_full) urlsToPrefetch.push(item.img_full);
@@ -419,21 +419,20 @@
                     // Проверяем, нет ли уже этого в кэше, чтобы не качать дважды
                     const exists = await cache.match(url);
                     if (!exists) {
-                        // Используем fetch с таймаутом, чтобы запрос не висел вечно в pending
-                        const controller = new AbortController();
-                        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 сек на файл
-
-                        const response = await fetch(url, { signal: controller.signal });
-                        if (response.ok) {
+                        // Добавляем {mode: 'no-cors'} если картинки с другого домена, 
+                        // но в вашем случае они локальные, так что просто fetch
+                        const response = await fetch(url).catch(() => null); 
+                        
+                        if (response && response.ok) {
                             await cache.put(url, response);
-                            // console.log('Saved to cache:', url);
                         }
-                        clearTimeout(timeoutId);
                     }
                 } catch (e) {
+                    // Ошибка здесь больше не будет "красной" в общем логе
                     console.warn('Ошибка загрузки (возможно, прервано соединение):', url);
                 }
             }
+            console.log('✅ Фоновое обновление кэша завершено');
         }
 
         // Слушатель возвращения интернета
