@@ -387,13 +387,19 @@
             document.body.style.overflow = 'auto';
         }
 
-        // Регистрация Service Worker
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-              navigator.serviceWorker.register('./sw.js');
-            });
-          }
-        
+
+        async function fetchWithTimeout(url, timeout = 5000) {
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), timeout);
+            try {
+                const response = await fetch(url, { signal: controller.signal });
+                clearTimeout(id);
+                return response;
+            } catch (e) {
+                clearTimeout(id);
+                return null;  // Тихо возвращаем null в случае обрыва/таймаута, чтобы цикл в prefetch шел дальше
+            }
+        }
         // Функция фоновой загрузки всех ресурсов
         async function prefetchMenuAssets() {
             if (!('caches' in window) || !navigator.onLine) return;
@@ -419,26 +425,55 @@
                     // Проверяем, нет ли уже этого в кэше, чтобы не качать дважды
                     const exists = await cache.match(url);
                     if (!exists) {
-                        // Добавляем {mode: 'no-cors'} если картинки с другого домена, 
-                        // но в вашем случае они локальные, так что просто fetch
-                        const response = await fetch(url).catch(() => null); 
+                        const response = await fetchWithTimeout(url);
                         
                         if (response && response.ok) {
                             await cache.put(url, response);
                         }
                     }
                 } catch (e) {
-                    // Ошибка здесь больше не будет "красной" в общем логе
                     console.warn('Ошибка загрузки (возможно, прервано соединение):', url);
                 }
             }
             console.log('✅ Фоновое обновление кэша завершено');
         }
 
-        // Слушатель возвращения интернета
-        window.addEventListener('online', prefetchMenuAssets);
+        // Функция, которая находит все "сломанные" картинки и пробует загрузить их заново
+        function retryFailedImages() {
+            const images = document.querySelectorAll('img.product-img');
+            images.forEach(img => {
+                // Если картинка не прогрузилась (естественный размер 0)
+                if (!img.complete || img.naturalWidth === 0) {
+                    const currentSrc = img.src;
+                    // "Передергиваем" src, добавляя временную метку, 
+                    // чтобы заставить браузер проверить кэш/сеть еще раз
+                    img.src = '';
+                    img.src = currentSrc.split('?')[0] + '?retry=' + Date.now();
+                }
+            });
+        }
 
+        // Когда интернет возвращается:
+        // 1. Докачиваем в кэш
+        // 2. Обновляем битые картинки на экране
+        window.addEventListener('online', async () => {
+            console.log('Сеть восстановлена, докачиваю ресурсы...');
+            await prefetchMenuAssets();
+            retryFailedImages();
+        });
+
+        // Ждем полной загрузки страницы
         window.addEventListener('load', () => {
+            
+            // 1. Регистрируем Service Worker
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(() => console.log("SW готов"))
+                    .catch(err => console.log("Ошибка SW", err));
+            }
+
+            // 2. Запускаем фоновую выкачку картинок через 3 секунды
+            // (чтобы не мешать пользователю в первое время)
             setTimeout(prefetchMenuAssets, 3000);
         });
     </script>
