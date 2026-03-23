@@ -3,6 +3,10 @@ import requests
 import csv
 from PIL import Image
 from io import BytesIO
+import pillow_heif
+
+# Регистрируем плагин HEIF в Pillow
+pillow_heif.register_heif_opener()
 
 SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVezxfe40Q-78IQvERF0u42mMOqAMNAmJ-aHJN4Zx9_S99ud7GYZMaENCQBb_hvujpYjb3sT8aITCM/pub?output=csv"
 THUMBS_DIR = 'assets/img/thumbs'
