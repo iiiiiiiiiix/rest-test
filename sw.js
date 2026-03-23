@@ -66,8 +66,9 @@ self.addEventListener('fetch', (event) => {
           return networkResponse;
       })
       .catch(() => {
-        // ПЕРЕХВАТЫВАЕМ ОШИБКУ: возвращаем пустой ответ вместо красной ошибки в консоли
-        return new Response(null, { status: 408 }); 
+          // Возвращаем пустой ответ со статусом 204 (No Content)
+          // Это легальный "успешный" статус, который не красит консоль в красный
+          return new Response(null, { status: 204 }); 
       });
     })
   );
