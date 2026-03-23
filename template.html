@@ -402,7 +402,7 @@
         }
         // Функция фоновой загрузки всех ресурсов
         async function prefetchMenuAssets() {
-            if (!('caches' in window) || !navigator.onLine) return;
+            if (!navigator.onLine) return;
             
             const cache = await caches.open('modnyi-v2');
 
@@ -420,13 +420,11 @@
             for (const url of urlsToPrefetch) {
                 // Если интернет пропал прямо в процессе цикла — выходим
                 if (!navigator.onLine) break;
-
                 try {
                     // Проверяем, нет ли уже этого в кэше, чтобы не качать дважды
-                    const exists = await cache.match(url);
-                    if (!exists) {
-                        const response = await fetchWithTimeout(url);
-                        
+                    const isCached = await cache.match(url);
+                    if (!isCached) {
+                        const response = await fetchWithTimeout(url, 5000);
                         if (response && response.ok) {
                             await cache.put(url, response);
                         }
@@ -440,42 +438,45 @@
 
         // Функция, которая находит все "сломанные" картинки и пробует загрузить их заново
         function retryFailedImages() {
+            console.log("Восстановление отображения картинок...");
             const images = document.querySelectorAll('img.product-img');
             images.forEach(img => {
                 // Если картинка не прогрузилась (естественный размер 0)
                 if (!img.complete || img.naturalWidth === 0) {
-                    const currentSrc = img.src;
-                    // "Передергиваем" src, добавляя временную метку, 
-                    // чтобы заставить браузер проверить кэш/сеть еще раз
-                    img.src = '';
-                    img.src = currentSrc.split('?')[0] + '?retry=' + Date.now();
+                    const originalSrc = img.getAttribute('src');
+                    if (originalSrc) {
+                        // Перезаписываем src тем же значением, чтобы SW отдал файл из кэша
+                        img.src = originalSrc;
+                    }
                 }
             });
         }
 
-        // Когда интернет возвращается:
-        // 1. Докачиваем в кэш
-        // 2. Обновляем битые картинки на экране
-        window.addEventListener('online', async () => {
-            console.log('Сеть восстановлена, докачиваю ресурсы...');
-            await prefetchMenuAssets();
-            retryFailedImages();
-        });
-
         // Ждем полной загрузки страницы
         window.addEventListener('load', () => {
-            
-            // 1. Регистрируем Service Worker
+            // Регистрируем Service Worker
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('./sw.js')
                     .then(() => console.log("SW готов"))
                     .catch(err => console.log("Ошибка SW", err));
             }
-
-            // 2. Запускаем фоновую выкачку картинок через 3 секунды
+            // Запускаем фоновую выкачку картинок через 2 секунды
             // (чтобы не мешать пользователю в первое время)
-            setTimeout(prefetchMenuAssets, 3000);
+            setTimeout(prefetchMenuAssets, 2000);
         });
+
+        // Обработка возвращения интернета если отключился посредине скачивания в кэш
+        // 1. Докачиваем в кэш
+        // 2. Обновляем битые картинки на экране
+        window.addEventListener('online', async () => {
+            console.log('Сеть восстановлена, докачиваю ресурсы...');
+            // Даем браузеру 1 секунду "продышаться" и запускаем восстановление
+            setTimeout(async () => {
+                await prefetchMenuAssets();
+                refreshImages();
+            }, 1000);
+        });
+
     </script>
 </body>
 </html>
