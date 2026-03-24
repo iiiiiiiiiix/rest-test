@@ -5,6 +5,10 @@ on:
     types: [webhook_update]
   workflow_dispatch: # Позволяет запускать процесс вручную из вкладки Actions
 
+# переменная для перехода на Node.js 24
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -29,9 +33,9 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
+
       - name: Install dependencies
-        run: |
-          pip install requests Pillow weasyprint pillow-heif
+        run: pip install requests Pillow weasyprint pillow-heif
 
       - name: Create asset directories
         run: |
@@ -41,7 +45,7 @@ jobs:
       - name: Process images (Download & Optimize)
         run: python process_images.py
 
-      - name: Build site (Generate HTML)
+      - name: Build HTML
         run: python build.py
 
       - name: Build PDF TEXT menu
@@ -65,7 +69,7 @@ jobs:
           fi
 
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./  # Отправит всё содержимое корня (вкл. новые index.html и pdf) в ветку gh-pages
