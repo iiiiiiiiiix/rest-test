@@ -1,7 +1,7 @@
 name: Build and Deploy
 
 on:
-  repository_dispatch: # это триггер который запускаем из AppsScript
+  repository_dispatch: # это триггер который запускаем POST запросом из AppsScript
     types: [webhook_update]
   workflow_dispatch: # Позволяет запускать процесс вручную из вкладки Actions
 
