@@ -5,10 +5,6 @@ on:
     types: [webhook_update]
   workflow_dispatch: # Позволяет запускать процесс вручную из вкладки Actions
 
-# переменная для перехода на Node.js 24
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -19,7 +15,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           # нужно, чтобы иметь полную историю для пуша
           fetch-depth: 0
@@ -30,9 +26,9 @@ jobs:
           sudo apt-get install -y libpango-1.0-0 libharfbuzz0b libpangoft2-1.0-0
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
-          python-version: '3.10'
+          python-version: '3.12'
 
       - name: Install dependencies
         run: pip install requests Pillow weasyprint pillow-heif
